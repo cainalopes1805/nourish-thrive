@@ -10,11 +10,36 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AjudaRouteImport } from './routes/ajuda'
+import { Route as AprenderRouteImport } from './routes/aprender'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ComunidadesRouteImport } from './routes/comunidades'
+import { Route as PrivacidadeRouteImport } from './routes/privacidade'
+import { Route as ProfissionaisRouteImport } from './routes/profissionais'
+import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
+import { Route as AprenderSlugRouteImport } from './routes/aprender.$slug'
+import { Route as ComunidadesSlugRouteImport } from './routes/comunidades.$slug'
+import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
+import { Route as PublicacoesIdRouteImport } from './routes/publicacoes.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AjudaRoute = AjudaRouteImport.update({
+  id: '/ajuda',
+  path: '/ajuda',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AprenderRoute = AprenderRouteImport.update({
+  id: '/aprender',
+  path: '/aprender',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -22,31 +47,147 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ComunidadesRoute = ComunidadesRouteImport.update({
+  id: '/comunidades',
+  path: '/comunidades',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacidadeRoute = PrivacidadeRouteImport.update({
+  id: '/privacidade',
+  path: '/privacidade',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfissionaisRoute = ProfissionaisRouteImport.update({
+  id: '/profissionais',
+  path: '/profissionais',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedFeedRoute = AuthenticatedFeedRouteImport.update({
+  id: '/feed',
+  path: '/feed',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AprenderSlugRoute = AprenderSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => AprenderRoute,
+} as any)
+const ComunidadesSlugRoute = ComunidadesSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => ComunidadesRoute,
+} as any)
+const ProfissionaisIdRoute = ProfissionaisIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ProfissionaisRoute,
+} as any)
+const PublicacoesIdRoute = PublicacoesIdRouteImport.update({
+  id: '/publicacoes/$id',
+  path: '/publicacoes/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ajuda': typeof AjudaRoute
+  '/aprender': typeof AprenderRouteWithChildren
   '/auth': typeof AuthRoute
+  '/comunidades': typeof ComunidadesRouteWithChildren
+  '/privacidade': typeof PrivacidadeRoute
+  '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/feed': typeof AuthenticatedFeedRoute
+  '/aprender/$slug': typeof AprenderSlugRoute
+  '/comunidades/$slug': typeof ComunidadesSlugRoute
+  '/profissionais/$id': typeof ProfissionaisIdRoute
+  '/publicacoes/$id': typeof PublicacoesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ajuda': typeof AjudaRoute
+  '/aprender': typeof AprenderRouteWithChildren
   '/auth': typeof AuthRoute
+  '/comunidades': typeof ComunidadesRouteWithChildren
+  '/privacidade': typeof PrivacidadeRoute
+  '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/feed': typeof AuthenticatedFeedRoute
+  '/aprender/$slug': typeof AprenderSlugRoute
+  '/comunidades/$slug': typeof ComunidadesSlugRoute
+  '/profissionais/$id': typeof ProfissionaisIdRoute
+  '/publicacoes/$id': typeof PublicacoesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/ajuda': typeof AjudaRoute
+  '/aprender': typeof AprenderRouteWithChildren
   '/auth': typeof AuthRoute
+  '/comunidades': typeof ComunidadesRouteWithChildren
+  '/privacidade': typeof PrivacidadeRoute
+  '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/_authenticated/feed': typeof AuthenticatedFeedRoute
+  '/aprender/$slug': typeof AprenderSlugRoute
+  '/comunidades/$slug': typeof ComunidadesSlugRoute
+  '/profissionais/$id': typeof ProfissionaisIdRoute
+  '/publicacoes/$id': typeof PublicacoesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth'
+  fullPaths:
+    | '/'
+    | '/ajuda'
+    | '/aprender'
+    | '/auth'
+    | '/comunidades'
+    | '/privacidade'
+    | '/profissionais'
+    | '/feed'
+    | '/aprender/$slug'
+    | '/comunidades/$slug'
+    | '/profissionais/$id'
+    | '/publicacoes/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth'
-  id: '__root__' | '/' | '/auth'
+  to:
+    | '/'
+    | '/ajuda'
+    | '/aprender'
+    | '/auth'
+    | '/comunidades'
+    | '/privacidade'
+    | '/profissionais'
+    | '/feed'
+    | '/aprender/$slug'
+    | '/comunidades/$slug'
+    | '/profissionais/$id'
+    | '/publicacoes/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/ajuda'
+    | '/aprender'
+    | '/auth'
+    | '/comunidades'
+    | '/privacidade'
+    | '/profissionais'
+    | '/_authenticated/feed'
+    | '/aprender/$slug'
+    | '/comunidades/$slug'
+    | '/profissionais/$id'
+    | '/publicacoes/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AjudaRoute: typeof AjudaRoute
+  AprenderRoute: typeof AprenderRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ComunidadesRoute: typeof ComunidadesRouteWithChildren
+  PrivacidadeRoute: typeof PrivacidadeRoute
+  ProfissionaisRoute: typeof ProfissionaisRouteWithChildren
+  PublicacoesIdRoute: typeof PublicacoesIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,6 +199,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ajuda': {
+      id: '/ajuda'
+      path: '/ajuda'
+      fullPath: '/ajuda'
+      preLoaderRoute: typeof AjudaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/aprender': {
+      id: '/aprender'
+      path: '/aprender'
+      fullPath: '/aprender'
+      preLoaderRoute: typeof AprenderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -65,12 +227,122 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/comunidades': {
+      id: '/comunidades'
+      path: '/comunidades'
+      fullPath: '/comunidades'
+      preLoaderRoute: typeof ComunidadesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacidade': {
+      id: '/privacidade'
+      path: '/privacidade'
+      fullPath: '/privacidade'
+      preLoaderRoute: typeof PrivacidadeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profissionais': {
+      id: '/profissionais'
+      path: '/profissionais'
+      fullPath: '/profissionais'
+      preLoaderRoute: typeof ProfissionaisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/feed': {
+      id: '/_authenticated/feed'
+      path: '/feed'
+      fullPath: '/feed'
+      preLoaderRoute: typeof AuthenticatedFeedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/aprender/$slug': {
+      id: '/aprender/$slug'
+      path: '/$slug'
+      fullPath: '/aprender/$slug'
+      preLoaderRoute: typeof AprenderSlugRouteImport
+      parentRoute: typeof AprenderRoute
+    }
+    '/comunidades/$slug': {
+      id: '/comunidades/$slug'
+      path: '/$slug'
+      fullPath: '/comunidades/$slug'
+      preLoaderRoute: typeof ComunidadesSlugRouteImport
+      parentRoute: typeof ComunidadesRoute
+    }
+    '/profissionais/$id': {
+      id: '/profissionais/$id'
+      path: '/$id'
+      fullPath: '/profissionais/$id'
+      preLoaderRoute: typeof ProfissionaisIdRouteImport
+      parentRoute: typeof ProfissionaisRoute
+    }
+    '/publicacoes/$id': {
+      id: '/publicacoes/$id'
+      path: '/publicacoes/$id'
+      fullPath: '/publicacoes/$id'
+      preLoaderRoute: typeof PublicacoesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedFeedRoute: AuthenticatedFeedRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
+interface AprenderRouteChildren {
+  AprenderSlugRoute: typeof AprenderSlugRoute
+}
+
+const AprenderRouteChildren: AprenderRouteChildren = {
+  AprenderSlugRoute: AprenderSlugRoute,
+}
+
+const AprenderRouteWithChildren = AprenderRoute._addFileChildren(
+  AprenderRouteChildren,
+)
+
+interface ComunidadesRouteChildren {
+  ComunidadesSlugRoute: typeof ComunidadesSlugRoute
+}
+
+const ComunidadesRouteChildren: ComunidadesRouteChildren = {
+  ComunidadesSlugRoute: ComunidadesSlugRoute,
+}
+
+const ComunidadesRouteWithChildren = ComunidadesRoute._addFileChildren(
+  ComunidadesRouteChildren,
+)
+
+interface ProfissionaisRouteChildren {
+  ProfissionaisIdRoute: typeof ProfissionaisIdRoute
+}
+
+const ProfissionaisRouteChildren: ProfissionaisRouteChildren = {
+  ProfissionaisIdRoute: ProfissionaisIdRoute,
+}
+
+const ProfissionaisRouteWithChildren = ProfissionaisRoute._addFileChildren(
+  ProfissionaisRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AjudaRoute: AjudaRoute,
+  AprenderRoute: AprenderRouteWithChildren,
   AuthRoute: AuthRoute,
+  ComunidadesRoute: ComunidadesRouteWithChildren,
+  PrivacidadeRoute: PrivacidadeRoute,
+  ProfissionaisRoute: ProfissionaisRouteWithChildren,
+  PublicacoesIdRoute: PublicacoesIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
