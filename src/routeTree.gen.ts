@@ -17,6 +17,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ComunidadesRouteImport } from './routes/comunidades'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
+import { Route as AuthenticatedConsultasRouteImport } from './routes/_authenticated/consultas'
 import { Route as AuthenticatedCriarRouteImport } from './routes/_authenticated/criar'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AprenderSlugRouteImport } from './routes/aprender.$slug'
@@ -63,6 +64,11 @@ const ProfissionaisRoute = ProfissionaisRouteImport.update({
   path: '/profissionais',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedConsultasRoute = AuthenticatedConsultasRouteImport.update({
+  id: '/consultas',
+  path: '/consultas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCriarRoute = AuthenticatedCriarRouteImport.update({
   id: '/criar',
   path: '/criar',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/comunidades': typeof ComunidadesRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/consultas': typeof AuthenticatedConsultasRoute
   '/criar': typeof AuthenticatedCriarRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/aprender/$slug': typeof AprenderSlugRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/comunidades': typeof ComunidadesRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/consultas': typeof AuthenticatedConsultasRoute
   '/criar': typeof AuthenticatedCriarRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/aprender/$slug': typeof AprenderSlugRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/comunidades': typeof ComunidadesRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
   '/_authenticated/criar': typeof AuthenticatedCriarRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/aprender/$slug': typeof AprenderSlugRoute
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/comunidades'
     | '/privacidade'
     | '/profissionais'
+    | '/consultas'
     | '/criar'
     | '/feed'
     | '/aprender/$slug'
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/comunidades'
     | '/privacidade'
     | '/profissionais'
+    | '/consultas'
     | '/criar'
     | '/feed'
     | '/aprender/$slug'
@@ -182,6 +193,7 @@ export interface FileRouteTypes {
     | '/comunidades'
     | '/privacidade'
     | '/profissionais'
+    | '/_authenticated/consultas'
     | '/_authenticated/criar'
     | '/_authenticated/feed'
     | '/aprender/$slug'
@@ -260,6 +272,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfissionaisRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/consultas': {
+      id: '/_authenticated/consultas'
+      path: '/consultas'
+      fullPath: '/consultas'
+      preLoaderRoute: typeof AuthenticatedConsultasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/criar': {
       id: '/_authenticated/criar'
       path: '/criar'
@@ -306,11 +325,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedConsultasRoute: typeof AuthenticatedConsultasRoute
   AuthenticatedCriarRoute: typeof AuthenticatedCriarRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedConsultasRoute: AuthenticatedConsultasRoute,
   AuthenticatedCriarRoute: AuthenticatedCriarRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
 }
