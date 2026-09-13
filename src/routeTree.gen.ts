@@ -19,7 +19,12 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as AuthenticatedConsultasRouteImport } from './routes/_authenticated/consultas'
 import { Route as AuthenticatedCriarRouteImport } from './routes/_authenticated/criar'
+import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
+import { Route as AuthenticatedExperienciaProtegidaRouteImport } from './routes/_authenticated/experiencia-protegida'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
+import { Route as AuthenticatedMensagensRouteImport } from './routes/_authenticated/mensagens'
+import { Route as AuthenticatedMeuEspacoRouteImport } from './routes/_authenticated/meu-espaco'
+import { Route as AuthenticatedPainelProfissionalRouteImport } from './routes/_authenticated/painel-profissional'
 import { Route as AprenderSlugRouteImport } from './routes/aprender.$slug'
 import { Route as ComunidadesSlugRouteImport } from './routes/comunidades.$slug'
 import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
@@ -74,11 +79,38 @@ const AuthenticatedCriarRoute = AuthenticatedCriarRouteImport.update({
   path: '/criar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDiarioRoute = AuthenticatedDiarioRouteImport.update({
+  id: '/diario',
+  path: '/diario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedExperienciaProtegidaRoute =
+  AuthenticatedExperienciaProtegidaRouteImport.update({
+    id: '/experiencia-protegida',
+    path: '/experiencia-protegida',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedFeedRoute = AuthenticatedFeedRouteImport.update({
   id: '/feed',
   path: '/feed',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMensagensRoute = AuthenticatedMensagensRouteImport.update({
+  id: '/mensagens',
+  path: '/mensagens',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMeuEspacoRoute = AuthenticatedMeuEspacoRouteImport.update({
+  id: '/meu-espaco',
+  path: '/meu-espaco',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPainelProfissionalRoute =
+  AuthenticatedPainelProfissionalRouteImport.update({
+    id: '/painel-profissional',
+    path: '/painel-profissional',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AprenderSlugRoute = AprenderSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -110,7 +142,12 @@ export interface FileRoutesByFullPath {
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/consultas': typeof AuthenticatedConsultasRoute
   '/criar': typeof AuthenticatedCriarRoute
+  '/diario': typeof AuthenticatedDiarioRoute
+  '/experiencia-protegida': typeof AuthenticatedExperienciaProtegidaRoute
   '/feed': typeof AuthenticatedFeedRoute
+  '/mensagens': typeof AuthenticatedMensagensRoute
+  '/meu-espaco': typeof AuthenticatedMeuEspacoRoute
+  '/painel-profissional': typeof AuthenticatedPainelProfissionalRoute
   '/aprender/$slug': typeof AprenderSlugRoute
   '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
@@ -126,7 +163,12 @@ export interface FileRoutesByTo {
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/consultas': typeof AuthenticatedConsultasRoute
   '/criar': typeof AuthenticatedCriarRoute
+  '/diario': typeof AuthenticatedDiarioRoute
+  '/experiencia-protegida': typeof AuthenticatedExperienciaProtegidaRoute
   '/feed': typeof AuthenticatedFeedRoute
+  '/mensagens': typeof AuthenticatedMensagensRoute
+  '/meu-espaco': typeof AuthenticatedMeuEspacoRoute
+  '/painel-profissional': typeof AuthenticatedPainelProfissionalRoute
   '/aprender/$slug': typeof AprenderSlugRoute
   '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
@@ -144,7 +186,12 @@ export interface FileRoutesById {
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
   '/_authenticated/criar': typeof AuthenticatedCriarRoute
+  '/_authenticated/diario': typeof AuthenticatedDiarioRoute
+  '/_authenticated/experiencia-protegida': typeof AuthenticatedExperienciaProtegidaRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
+  '/_authenticated/mensagens': typeof AuthenticatedMensagensRoute
+  '/_authenticated/meu-espaco': typeof AuthenticatedMeuEspacoRoute
+  '/_authenticated/painel-profissional': typeof AuthenticatedPainelProfissionalRoute
   '/aprender/$slug': typeof AprenderSlugRoute
   '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
@@ -162,7 +209,12 @@ export interface FileRouteTypes {
     | '/profissionais'
     | '/consultas'
     | '/criar'
+    | '/diario'
+    | '/experiencia-protegida'
     | '/feed'
+    | '/mensagens'
+    | '/meu-espaco'
+    | '/painel-profissional'
     | '/aprender/$slug'
     | '/comunidades/$slug'
     | '/profissionais/$id'
@@ -178,7 +230,12 @@ export interface FileRouteTypes {
     | '/profissionais'
     | '/consultas'
     | '/criar'
+    | '/diario'
+    | '/experiencia-protegida'
     | '/feed'
+    | '/mensagens'
+    | '/meu-espaco'
+    | '/painel-profissional'
     | '/aprender/$slug'
     | '/comunidades/$slug'
     | '/profissionais/$id'
@@ -195,7 +252,12 @@ export interface FileRouteTypes {
     | '/profissionais'
     | '/_authenticated/consultas'
     | '/_authenticated/criar'
+    | '/_authenticated/diario'
+    | '/_authenticated/experiencia-protegida'
     | '/_authenticated/feed'
+    | '/_authenticated/mensagens'
+    | '/_authenticated/meu-espaco'
+    | '/_authenticated/painel-profissional'
     | '/aprender/$slug'
     | '/comunidades/$slug'
     | '/profissionais/$id'
@@ -286,11 +348,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCriarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/diario': {
+      id: '/_authenticated/diario'
+      path: '/diario'
+      fullPath: '/diario'
+      preLoaderRoute: typeof AuthenticatedDiarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/experiencia-protegida': {
+      id: '/_authenticated/experiencia-protegida'
+      path: '/experiencia-protegida'
+      fullPath: '/experiencia-protegida'
+      preLoaderRoute: typeof AuthenticatedExperienciaProtegidaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/feed': {
       id: '/_authenticated/feed'
       path: '/feed'
       fullPath: '/feed'
       preLoaderRoute: typeof AuthenticatedFeedRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/mensagens': {
+      id: '/_authenticated/mensagens'
+      path: '/mensagens'
+      fullPath: '/mensagens'
+      preLoaderRoute: typeof AuthenticatedMensagensRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/meu-espaco': {
+      id: '/_authenticated/meu-espaco'
+      path: '/meu-espaco'
+      fullPath: '/meu-espaco'
+      preLoaderRoute: typeof AuthenticatedMeuEspacoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/painel-profissional': {
+      id: '/_authenticated/painel-profissional'
+      path: '/painel-profissional'
+      fullPath: '/painel-profissional'
+      preLoaderRoute: typeof AuthenticatedPainelProfissionalRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/aprender/$slug': {
@@ -327,13 +424,24 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedConsultasRoute: typeof AuthenticatedConsultasRoute
   AuthenticatedCriarRoute: typeof AuthenticatedCriarRoute
+  AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
+  AuthenticatedExperienciaProtegidaRoute: typeof AuthenticatedExperienciaProtegidaRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
+  AuthenticatedMensagensRoute: typeof AuthenticatedMensagensRoute
+  AuthenticatedMeuEspacoRoute: typeof AuthenticatedMeuEspacoRoute
+  AuthenticatedPainelProfissionalRoute: typeof AuthenticatedPainelProfissionalRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConsultasRoute: AuthenticatedConsultasRoute,
   AuthenticatedCriarRoute: AuthenticatedCriarRoute,
+  AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
+  AuthenticatedExperienciaProtegidaRoute:
+    AuthenticatedExperienciaProtegidaRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
+  AuthenticatedMensagensRoute: AuthenticatedMensagensRoute,
+  AuthenticatedMeuEspacoRoute: AuthenticatedMeuEspacoRoute,
+  AuthenticatedPainelProfissionalRoute: AuthenticatedPainelProfissionalRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
