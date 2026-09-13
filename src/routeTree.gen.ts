@@ -21,6 +21,7 @@ import { Route as AuthenticatedConsultasRouteImport } from './routes/_authentica
 import { Route as AuthenticatedCriarRouteImport } from './routes/_authenticated/criar'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedMensagensRouteImport } from './routes/_authenticated/mensagens'
+import { Route as AuthenticatedMeuEspacoRouteImport } from './routes/_authenticated/meu-espaco'
 import { Route as AprenderSlugRouteImport } from './routes/aprender.$slug'
 import { Route as ComunidadesSlugRouteImport } from './routes/comunidades.$slug'
 import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
@@ -85,6 +86,11 @@ const AuthenticatedMensagensRoute = AuthenticatedMensagensRouteImport.update({
   path: '/mensagens',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMeuEspacoRoute = AuthenticatedMeuEspacoRouteImport.update({
+  id: '/meu-espaco',
+  path: '/meu-espaco',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AprenderSlugRoute = AprenderSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/criar': typeof AuthenticatedCriarRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/mensagens': typeof AuthenticatedMensagensRoute
+  '/meu-espaco': typeof AuthenticatedMeuEspacoRoute
   '/aprender/$slug': typeof AprenderSlugRoute
   '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByTo {
   '/criar': typeof AuthenticatedCriarRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/mensagens': typeof AuthenticatedMensagensRoute
+  '/meu-espaco': typeof AuthenticatedMeuEspacoRoute
   '/aprender/$slug': typeof AprenderSlugRoute
   '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
@@ -154,6 +162,7 @@ export interface FileRoutesById {
   '/_authenticated/criar': typeof AuthenticatedCriarRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/mensagens': typeof AuthenticatedMensagensRoute
+  '/_authenticated/meu-espaco': typeof AuthenticatedMeuEspacoRoute
   '/aprender/$slug': typeof AprenderSlugRoute
   '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
@@ -173,6 +182,7 @@ export interface FileRouteTypes {
     | '/criar'
     | '/feed'
     | '/mensagens'
+    | '/meu-espaco'
     | '/aprender/$slug'
     | '/comunidades/$slug'
     | '/profissionais/$id'
@@ -190,6 +200,7 @@ export interface FileRouteTypes {
     | '/criar'
     | '/feed'
     | '/mensagens'
+    | '/meu-espaco'
     | '/aprender/$slug'
     | '/comunidades/$slug'
     | '/profissionais/$id'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/_authenticated/criar'
     | '/_authenticated/feed'
     | '/_authenticated/mensagens'
+    | '/_authenticated/meu-espaco'
     | '/aprender/$slug'
     | '/comunidades/$slug'
     | '/profissionais/$id'
@@ -312,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMensagensRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/meu-espaco': {
+      id: '/_authenticated/meu-espaco'
+      path: '/meu-espaco'
+      fullPath: '/meu-espaco'
+      preLoaderRoute: typeof AuthenticatedMeuEspacoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/aprender/$slug': {
       id: '/aprender/$slug'
       path: '/$slug'
@@ -348,6 +367,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCriarRoute: typeof AuthenticatedCriarRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedMensagensRoute: typeof AuthenticatedMensagensRoute
+  AuthenticatedMeuEspacoRoute: typeof AuthenticatedMeuEspacoRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -355,6 +375,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCriarRoute: AuthenticatedCriarRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedMensagensRoute: AuthenticatedMensagensRoute,
+  AuthenticatedMeuEspacoRoute: AuthenticatedMeuEspacoRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
