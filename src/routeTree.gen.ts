@@ -24,6 +24,7 @@ import { Route as AuthenticatedExperienciaProtegidaRouteImport } from './routes/
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedMensagensRouteImport } from './routes/_authenticated/mensagens'
 import { Route as AuthenticatedMeuEspacoRouteImport } from './routes/_authenticated/meu-espaco'
+import { Route as AuthenticatedPainelProfissionalRouteImport } from './routes/_authenticated/painel-profissional'
 import { Route as AprenderSlugRouteImport } from './routes/aprender.$slug'
 import { Route as ComunidadesSlugRouteImport } from './routes/comunidades.$slug'
 import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
@@ -104,6 +105,12 @@ const AuthenticatedMeuEspacoRoute = AuthenticatedMeuEspacoRouteImport.update({
   path: '/meu-espaco',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPainelProfissionalRoute =
+  AuthenticatedPainelProfissionalRouteImport.update({
+    id: '/painel-profissional',
+    path: '/painel-profissional',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AprenderSlugRoute = AprenderSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -140,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/feed': typeof AuthenticatedFeedRoute
   '/mensagens': typeof AuthenticatedMensagensRoute
   '/meu-espaco': typeof AuthenticatedMeuEspacoRoute
+  '/painel-profissional': typeof AuthenticatedPainelProfissionalRoute
   '/aprender/$slug': typeof AprenderSlugRoute
   '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
@@ -160,6 +168,7 @@ export interface FileRoutesByTo {
   '/feed': typeof AuthenticatedFeedRoute
   '/mensagens': typeof AuthenticatedMensagensRoute
   '/meu-espaco': typeof AuthenticatedMeuEspacoRoute
+  '/painel-profissional': typeof AuthenticatedPainelProfissionalRoute
   '/aprender/$slug': typeof AprenderSlugRoute
   '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
@@ -182,6 +191,7 @@ export interface FileRoutesById {
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/mensagens': typeof AuthenticatedMensagensRoute
   '/_authenticated/meu-espaco': typeof AuthenticatedMeuEspacoRoute
+  '/_authenticated/painel-profissional': typeof AuthenticatedPainelProfissionalRoute
   '/aprender/$slug': typeof AprenderSlugRoute
   '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
@@ -204,6 +214,7 @@ export interface FileRouteTypes {
     | '/feed'
     | '/mensagens'
     | '/meu-espaco'
+    | '/painel-profissional'
     | '/aprender/$slug'
     | '/comunidades/$slug'
     | '/profissionais/$id'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/feed'
     | '/mensagens'
     | '/meu-espaco'
+    | '/painel-profissional'
     | '/aprender/$slug'
     | '/comunidades/$slug'
     | '/profissionais/$id'
@@ -245,6 +257,7 @@ export interface FileRouteTypes {
     | '/_authenticated/feed'
     | '/_authenticated/mensagens'
     | '/_authenticated/meu-espaco'
+    | '/_authenticated/painel-profissional'
     | '/aprender/$slug'
     | '/comunidades/$slug'
     | '/profissionais/$id'
@@ -370,6 +383,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeuEspacoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/painel-profissional': {
+      id: '/_authenticated/painel-profissional'
+      path: '/painel-profissional'
+      fullPath: '/painel-profissional'
+      preLoaderRoute: typeof AuthenticatedPainelProfissionalRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/aprender/$slug': {
       id: '/aprender/$slug'
       path: '/$slug'
@@ -409,6 +429,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedMensagensRoute: typeof AuthenticatedMensagensRoute
   AuthenticatedMeuEspacoRoute: typeof AuthenticatedMeuEspacoRoute
+  AuthenticatedPainelProfissionalRoute: typeof AuthenticatedPainelProfissionalRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -420,6 +441,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedMensagensRoute: AuthenticatedMensagensRoute,
   AuthenticatedMeuEspacoRoute: AuthenticatedMeuEspacoRoute,
+  AuthenticatedPainelProfissionalRoute: AuthenticatedPainelProfissionalRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
