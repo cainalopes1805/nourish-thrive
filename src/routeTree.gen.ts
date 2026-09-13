@@ -19,6 +19,7 @@ import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
 import { Route as AuthenticatedConsultasRouteImport } from './routes/_authenticated/consultas'
 import { Route as AuthenticatedCriarRouteImport } from './routes/_authenticated/criar'
+import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedMensagensRouteImport } from './routes/_authenticated/mensagens'
 import { Route as AuthenticatedMeuEspacoRouteImport } from './routes/_authenticated/meu-espaco'
@@ -76,6 +77,11 @@ const AuthenticatedCriarRoute = AuthenticatedCriarRouteImport.update({
   path: '/criar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDiarioRoute = AuthenticatedDiarioRouteImport.update({
+  id: '/diario',
+  path: '/diario',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedFeedRoute = AuthenticatedFeedRouteImport.update({
   id: '/feed',
   path: '/feed',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/consultas': typeof AuthenticatedConsultasRoute
   '/criar': typeof AuthenticatedCriarRoute
+  '/diario': typeof AuthenticatedDiarioRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/mensagens': typeof AuthenticatedMensagensRoute
   '/meu-espaco': typeof AuthenticatedMeuEspacoRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/consultas': typeof AuthenticatedConsultasRoute
   '/criar': typeof AuthenticatedCriarRoute
+  '/diario': typeof AuthenticatedDiarioRoute
   '/feed': typeof AuthenticatedFeedRoute
   '/mensagens': typeof AuthenticatedMensagensRoute
   '/meu-espaco': typeof AuthenticatedMeuEspacoRoute
@@ -160,6 +168,7 @@ export interface FileRoutesById {
   '/profissionais': typeof ProfissionaisRouteWithChildren
   '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
   '/_authenticated/criar': typeof AuthenticatedCriarRoute
+  '/_authenticated/diario': typeof AuthenticatedDiarioRoute
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/mensagens': typeof AuthenticatedMensagensRoute
   '/_authenticated/meu-espaco': typeof AuthenticatedMeuEspacoRoute
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/profissionais'
     | '/consultas'
     | '/criar'
+    | '/diario'
     | '/feed'
     | '/mensagens'
     | '/meu-espaco'
@@ -198,6 +208,7 @@ export interface FileRouteTypes {
     | '/profissionais'
     | '/consultas'
     | '/criar'
+    | '/diario'
     | '/feed'
     | '/mensagens'
     | '/meu-espaco'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/profissionais'
     | '/_authenticated/consultas'
     | '/_authenticated/criar'
+    | '/_authenticated/diario'
     | '/_authenticated/feed'
     | '/_authenticated/mensagens'
     | '/_authenticated/meu-espaco'
@@ -310,6 +322,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCriarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/diario': {
+      id: '/_authenticated/diario'
+      path: '/diario'
+      fullPath: '/diario'
+      preLoaderRoute: typeof AuthenticatedDiarioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/feed': {
       id: '/_authenticated/feed'
       path: '/feed'
@@ -365,6 +384,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedConsultasRoute: typeof AuthenticatedConsultasRoute
   AuthenticatedCriarRoute: typeof AuthenticatedCriarRoute
+  AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedMensagensRoute: typeof AuthenticatedMensagensRoute
   AuthenticatedMeuEspacoRoute: typeof AuthenticatedMeuEspacoRoute
@@ -373,6 +393,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConsultasRoute: AuthenticatedConsultasRoute,
   AuthenticatedCriarRoute: AuthenticatedCriarRoute,
+  AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedMensagensRoute: AuthenticatedMensagensRoute,
   AuthenticatedMeuEspacoRoute: AuthenticatedMeuEspacoRoute,
