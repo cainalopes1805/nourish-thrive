@@ -17,6 +17,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ComunidadesRouteImport } from './routes/comunidades'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedConsultasRouteImport } from './routes/_authenticated/consultas'
 import { Route as AuthenticatedCriarRouteImport } from './routes/_authenticated/criar'
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
@@ -69,6 +70,11 @@ const ProfissionaisRoute = ProfissionaisRouteImport.update({
   id: '/profissionais',
   path: '/profissionais',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedConsultasRoute = AuthenticatedConsultasRouteImport.update({
   id: '/consultas',
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/comunidades': typeof ComunidadesRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/consultas': typeof AuthenticatedConsultasRoute
   '/criar': typeof AuthenticatedCriarRoute
   '/diario': typeof AuthenticatedDiarioRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/comunidades': typeof ComunidadesRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/consultas': typeof AuthenticatedConsultasRoute
   '/criar': typeof AuthenticatedCriarRoute
   '/diario': typeof AuthenticatedDiarioRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/comunidades': typeof ComunidadesRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
   '/_authenticated/criar': typeof AuthenticatedCriarRoute
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/comunidades'
     | '/privacidade'
     | '/profissionais'
+    | '/admin'
     | '/consultas'
     | '/criar'
     | '/diario'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/comunidades'
     | '/privacidade'
     | '/profissionais'
+    | '/admin'
     | '/consultas'
     | '/criar'
     | '/diario'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/comunidades'
     | '/privacidade'
     | '/profissionais'
+    | '/_authenticated/admin'
     | '/_authenticated/consultas'
     | '/_authenticated/criar'
     | '/_authenticated/diario'
@@ -345,6 +357,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/profissionais'
       preLoaderRoute: typeof ProfissionaisRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/consultas': {
       id: '/_authenticated/consultas'
@@ -441,6 +460,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedConsultasRoute: typeof AuthenticatedConsultasRoute
   AuthenticatedCriarRoute: typeof AuthenticatedCriarRoute
   AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
@@ -453,6 +473,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedConsultasRoute: AuthenticatedConsultasRoute,
   AuthenticatedCriarRoute: AuthenticatedCriarRoute,
   AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
