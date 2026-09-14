@@ -11,9 +11,9 @@ import { cn } from "@/lib/utils";
 type LearnSearch = { categoria?: string };
 
 export const Route = createFileRoute("/aprender")({
-  validateSearch: (search: Record<string, unknown>): LearnSearch => ({
-    categoria: typeof search['categoria'] === "string" ? (search['categoria'] as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): LearnSearch =>
+    typeof search['categoria'] === "string" ? { categoria: search['categoria'] } : {},
+
   head: () => ({
     meta: [
       { title: "Biblioteca de educação alimentar | Mesa Comum" },
