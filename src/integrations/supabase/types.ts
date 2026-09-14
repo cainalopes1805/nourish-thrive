@@ -539,6 +539,58 @@ export type Database = {
         }
         Relationships: []
       }
+      friendships: {
+        Row: {
+          action_user_id: string
+          created_at: string
+          id: string
+          status: string
+          updated_at: string
+          user_id_1: string
+          user_id_2: string
+        }
+        Insert: {
+          action_user_id: string
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id_1: string
+          user_id_2: string
+        }
+        Update: {
+          action_user_id?: string
+          created_at?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id_1?: string
+          user_id_2?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friendships_action_user_id_fkey"
+            columns: ["action_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friendships_user_id_1_fkey"
+            columns: ["user_id_1"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "friendships_user_id_2_fkey"
+            columns: ["user_id_2"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           body: string
@@ -795,13 +847,19 @@ export type Database = {
       }
       profiles: {
         Row: {
+          about_me: string | null
           avatar_url: string | null
+          banner_url: string | null
           bio: string | null
           created_at: string
+          date_of_birth: string | null
           display_name: string
           feed_preferences: Json
+          gender: string | null
           id: string
           interests: string[]
+          location: string | null
+          nationality: string | null
           onboarded: boolean
           preferred_topics: string[]
           privacy_preferences: Json
@@ -810,13 +868,19 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          about_me?: string | null
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string
           feed_preferences?: Json
+          gender?: string | null
           id: string
           interests?: string[]
+          location?: string | null
+          nationality?: string | null
           onboarded?: boolean
           preferred_topics?: string[]
           privacy_preferences?: Json
@@ -825,13 +889,19 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          about_me?: string | null
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string
           feed_preferences?: Json
+          gender?: string | null
           id?: string
           interests?: string[]
+          location?: string | null
+          nationality?: string | null
           onboarded?: boolean
           preferred_topics?: string[]
           privacy_preferences?: Json
@@ -1039,6 +1109,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_public_profile: {
+        Args: {
+          target_id: string
+        }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
