@@ -17,6 +17,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ComunidadesRouteImport } from './routes/comunidades'
 import { Route as PrivacidadeRouteImport } from './routes/privacidade'
 import { Route as ProfissionaisRouteImport } from './routes/profissionais'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedConsultasRouteImport } from './routes/_authenticated/consultas'
 import { Route as AuthenticatedCriarRouteImport } from './routes/_authenticated/criar'
 import { Route as AuthenticatedDiarioRouteImport } from './routes/_authenticated/diario'
@@ -24,6 +25,7 @@ import { Route as AuthenticatedExperienciaProtegidaRouteImport } from './routes/
 import { Route as AuthenticatedFeedRouteImport } from './routes/_authenticated/feed'
 import { Route as AuthenticatedMensagensRouteImport } from './routes/_authenticated/mensagens'
 import { Route as AuthenticatedMeuEspacoRouteImport } from './routes/_authenticated/meu-espaco'
+import { Route as AuthenticatedModeracaoRouteImport } from './routes/_authenticated/moderacao'
 import { Route as AuthenticatedPainelProfissionalRouteImport } from './routes/_authenticated/painel-profissional'
 import { Route as AprenderSlugRouteImport } from './routes/aprender.$slug'
 import { Route as ComunidadesSlugRouteImport } from './routes/comunidades.$slug'
@@ -69,6 +71,11 @@ const ProfissionaisRoute = ProfissionaisRouteImport.update({
   path: '/profissionais',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedConsultasRoute = AuthenticatedConsultasRouteImport.update({
   id: '/consultas',
   path: '/consultas',
@@ -103,6 +110,11 @@ const AuthenticatedMensagensRoute = AuthenticatedMensagensRouteImport.update({
 const AuthenticatedMeuEspacoRoute = AuthenticatedMeuEspacoRouteImport.update({
   id: '/meu-espaco',
   path: '/meu-espaco',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedModeracaoRoute = AuthenticatedModeracaoRouteImport.update({
+  id: '/moderacao',
+  path: '/moderacao',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedPainelProfissionalRoute =
@@ -140,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/comunidades': typeof ComunidadesRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/consultas': typeof AuthenticatedConsultasRoute
   '/criar': typeof AuthenticatedCriarRoute
   '/diario': typeof AuthenticatedDiarioRoute
@@ -147,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/feed': typeof AuthenticatedFeedRoute
   '/mensagens': typeof AuthenticatedMensagensRoute
   '/meu-espaco': typeof AuthenticatedMeuEspacoRoute
+  '/moderacao': typeof AuthenticatedModeracaoRoute
   '/painel-profissional': typeof AuthenticatedPainelProfissionalRoute
   '/aprender/$slug': typeof AprenderSlugRoute
   '/comunidades/$slug': typeof ComunidadesSlugRoute
@@ -161,6 +175,7 @@ export interface FileRoutesByTo {
   '/comunidades': typeof ComunidadesRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/consultas': typeof AuthenticatedConsultasRoute
   '/criar': typeof AuthenticatedCriarRoute
   '/diario': typeof AuthenticatedDiarioRoute
@@ -168,6 +183,7 @@ export interface FileRoutesByTo {
   '/feed': typeof AuthenticatedFeedRoute
   '/mensagens': typeof AuthenticatedMensagensRoute
   '/meu-espaco': typeof AuthenticatedMeuEspacoRoute
+  '/moderacao': typeof AuthenticatedModeracaoRoute
   '/painel-profissional': typeof AuthenticatedPainelProfissionalRoute
   '/aprender/$slug': typeof AprenderSlugRoute
   '/comunidades/$slug': typeof ComunidadesSlugRoute
@@ -184,6 +200,7 @@ export interface FileRoutesById {
   '/comunidades': typeof ComunidadesRouteWithChildren
   '/privacidade': typeof PrivacidadeRoute
   '/profissionais': typeof ProfissionaisRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/consultas': typeof AuthenticatedConsultasRoute
   '/_authenticated/criar': typeof AuthenticatedCriarRoute
   '/_authenticated/diario': typeof AuthenticatedDiarioRoute
@@ -191,6 +208,7 @@ export interface FileRoutesById {
   '/_authenticated/feed': typeof AuthenticatedFeedRoute
   '/_authenticated/mensagens': typeof AuthenticatedMensagensRoute
   '/_authenticated/meu-espaco': typeof AuthenticatedMeuEspacoRoute
+  '/_authenticated/moderacao': typeof AuthenticatedModeracaoRoute
   '/_authenticated/painel-profissional': typeof AuthenticatedPainelProfissionalRoute
   '/aprender/$slug': typeof AprenderSlugRoute
   '/comunidades/$slug': typeof ComunidadesSlugRoute
@@ -207,6 +225,7 @@ export interface FileRouteTypes {
     | '/comunidades'
     | '/privacidade'
     | '/profissionais'
+    | '/admin'
     | '/consultas'
     | '/criar'
     | '/diario'
@@ -214,6 +233,7 @@ export interface FileRouteTypes {
     | '/feed'
     | '/mensagens'
     | '/meu-espaco'
+    | '/moderacao'
     | '/painel-profissional'
     | '/aprender/$slug'
     | '/comunidades/$slug'
@@ -228,6 +248,7 @@ export interface FileRouteTypes {
     | '/comunidades'
     | '/privacidade'
     | '/profissionais'
+    | '/admin'
     | '/consultas'
     | '/criar'
     | '/diario'
@@ -235,6 +256,7 @@ export interface FileRouteTypes {
     | '/feed'
     | '/mensagens'
     | '/meu-espaco'
+    | '/moderacao'
     | '/painel-profissional'
     | '/aprender/$slug'
     | '/comunidades/$slug'
@@ -250,6 +272,7 @@ export interface FileRouteTypes {
     | '/comunidades'
     | '/privacidade'
     | '/profissionais'
+    | '/_authenticated/admin'
     | '/_authenticated/consultas'
     | '/_authenticated/criar'
     | '/_authenticated/diario'
@@ -257,6 +280,7 @@ export interface FileRouteTypes {
     | '/_authenticated/feed'
     | '/_authenticated/mensagens'
     | '/_authenticated/meu-espaco'
+    | '/_authenticated/moderacao'
     | '/_authenticated/painel-profissional'
     | '/aprender/$slug'
     | '/comunidades/$slug'
@@ -334,6 +358,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfissionaisRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/consultas': {
       id: '/_authenticated/consultas'
       path: '/consultas'
@@ -383,6 +414,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMeuEspacoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/moderacao': {
+      id: '/_authenticated/moderacao'
+      path: '/moderacao'
+      fullPath: '/moderacao'
+      preLoaderRoute: typeof AuthenticatedModeracaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/painel-profissional': {
       id: '/_authenticated/painel-profissional'
       path: '/painel-profissional'
@@ -422,6 +460,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedConsultasRoute: typeof AuthenticatedConsultasRoute
   AuthenticatedCriarRoute: typeof AuthenticatedCriarRoute
   AuthenticatedDiarioRoute: typeof AuthenticatedDiarioRoute
@@ -429,10 +468,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFeedRoute: typeof AuthenticatedFeedRoute
   AuthenticatedMensagensRoute: typeof AuthenticatedMensagensRoute
   AuthenticatedMeuEspacoRoute: typeof AuthenticatedMeuEspacoRoute
+  AuthenticatedModeracaoRoute: typeof AuthenticatedModeracaoRoute
   AuthenticatedPainelProfissionalRoute: typeof AuthenticatedPainelProfissionalRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedConsultasRoute: AuthenticatedConsultasRoute,
   AuthenticatedCriarRoute: AuthenticatedCriarRoute,
   AuthenticatedDiarioRoute: AuthenticatedDiarioRoute,
@@ -441,6 +482,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFeedRoute: AuthenticatedFeedRoute,
   AuthenticatedMensagensRoute: AuthenticatedMensagensRoute,
   AuthenticatedMeuEspacoRoute: AuthenticatedMeuEspacoRoute,
+  AuthenticatedModeracaoRoute: AuthenticatedModeracaoRoute,
   AuthenticatedPainelProfissionalRoute: AuthenticatedPainelProfissionalRoute,
 }
 
