@@ -31,6 +31,7 @@ import { Route as AprenderSlugRouteImport } from './routes/aprender.$slug'
 import { Route as ComunidadesSlugRouteImport } from './routes/comunidades.$slug'
 import { Route as ProfissionaisIdRouteImport } from './routes/profissionais.$id'
 import { Route as PublicacoesIdRouteImport } from './routes/publicacoes.$id'
+import { Route as AuthenticatedPerfilIdRouteImport } from './routes/_authenticated/perfil.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -143,6 +144,11 @@ const PublicacoesIdRoute = PublicacoesIdRouteImport.update({
   path: '/publicacoes/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedPerfilIdRoute = AuthenticatedPerfilIdRouteImport.update({
+  id: '/perfil/$id',
+  path: '/perfil/$id',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
   '/publicacoes/$id': typeof PublicacoesIdRoute
+  '/perfil/$id': typeof AuthenticatedPerfilIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
   '/publicacoes/$id': typeof PublicacoesIdRoute
+  '/perfil/$id': typeof AuthenticatedPerfilIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -214,6 +222,7 @@ export interface FileRoutesById {
   '/comunidades/$slug': typeof ComunidadesSlugRoute
   '/profissionais/$id': typeof ProfissionaisIdRoute
   '/publicacoes/$id': typeof PublicacoesIdRoute
+  '/_authenticated/perfil/$id': typeof AuthenticatedPerfilIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -239,6 +248,7 @@ export interface FileRouteTypes {
     | '/comunidades/$slug'
     | '/profissionais/$id'
     | '/publicacoes/$id'
+    | '/perfil/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -262,6 +272,7 @@ export interface FileRouteTypes {
     | '/comunidades/$slug'
     | '/profissionais/$id'
     | '/publicacoes/$id'
+    | '/perfil/$id'
   id:
     | '__root__'
     | '/'
@@ -286,6 +297,7 @@ export interface FileRouteTypes {
     | '/comunidades/$slug'
     | '/profissionais/$id'
     | '/publicacoes/$id'
+    | '/_authenticated/perfil/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -456,6 +468,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicacoesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/perfil/$id': {
+      id: '/_authenticated/perfil/$id'
+      path: '/perfil/$id'
+      fullPath: '/perfil/$id'
+      preLoaderRoute: typeof AuthenticatedPerfilIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -470,6 +489,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMeuEspacoRoute: typeof AuthenticatedMeuEspacoRoute
   AuthenticatedModeracaoRoute: typeof AuthenticatedModeracaoRoute
   AuthenticatedPainelProfissionalRoute: typeof AuthenticatedPainelProfissionalRoute
+  AuthenticatedPerfilIdRoute: typeof AuthenticatedPerfilIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -484,6 +504,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMeuEspacoRoute: AuthenticatedMeuEspacoRoute,
   AuthenticatedModeracaoRoute: AuthenticatedModeracaoRoute,
   AuthenticatedPainelProfissionalRoute: AuthenticatedPainelProfissionalRoute,
+  AuthenticatedPerfilIdRoute: AuthenticatedPerfilIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

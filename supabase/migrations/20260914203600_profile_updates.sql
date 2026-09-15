@@ -23,6 +23,7 @@ DECLARE
     show_location boolean;
     show_age boolean;
     show_nationality boolean;
+    vis_interests text[];
 BEGIN
     SELECT * INTO prof FROM public.profiles WHERE id = target_id;
     
@@ -35,6 +36,17 @@ BEGIN
     show_age := COALESCE((prof.privacy_preferences->>'show_age')::boolean, false);
     show_nationality := COALESCE((prof.privacy_preferences->>'show_nationality')::boolean, true);
 
+    -- Extract visible interests securely
+    SELECT ARRAY(
+        SELECT jsonb_array_elements_text(
+            CASE 
+                WHEN jsonb_typeof(prof.privacy_preferences->'visible_interests') = 'array' 
+                THEN prof.privacy_preferences->'visible_interests' 
+                ELSE '[]'::jsonb 
+            END
+        )
+    ) INTO vis_interests;
+
     -- Construct the safe JSON
     result := json_build_object(
         'id', prof.id,
@@ -46,9 +58,12 @@ BEGIN
         'location', CASE WHEN show_location THEN prof.location ELSE NULL END,
         'date_of_birth', CASE WHEN show_age THEN prof.date_of_birth ELSE NULL END,
         'nationality', CASE WHEN show_nationality THEN prof.nationality ELSE NULL END,
-        'privacy_preferences', prof.privacy_preferences,
-        'interests', prof.interests
-        -- gender is excluded entirely from the public view
+        'interests', (
+            SELECT COALESCE(array_agg(i), '{}'::text[])
+            FROM unnest(prof.interests) i
+            WHERE i = ANY(vis_interests)
+        )
+        -- gender, privacy_preferences, and full interests are excluded entirely from the public view
     );
     
     RETURN result;
