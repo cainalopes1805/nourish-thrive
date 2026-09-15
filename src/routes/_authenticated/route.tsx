@@ -4,9 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
-    return { user: data.user };
+    // TEMPORARY: Authentication check disabled to allow direct page viewing
+    // const { data, error } = await supabase.auth.getUser();
+    // if (error || !data.user) throw redirect({ to: "/auth" });
+    // return { user: data.user };
+    return { user: null };
   },
   component: () => <Outlet />,
 });
