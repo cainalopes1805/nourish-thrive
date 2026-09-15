@@ -1,10 +1,15 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Users } from "lucide-react";
+import { Users, Search } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { CardSkeletonList, EmptyState, ErrorState } from "@/components/common/states";
 import { SafetyNote } from "@/components/common/SafetyNote";
 import { supabase } from "@/integrations/supabase/client";
+import { CreateCommunityDialog } from "@/components/social/CreateCommunityDialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useSession } from "@/hooks/useSession";
 
 export const Route = createFileRoute("/comunidades")({
   head: () => ({
@@ -28,25 +33,53 @@ export const Route = createFileRoute("/comunidades")({
 });
 
 function CommunitiesPage() {
+  const { user } = useSession();
+  const [search, setSearch] = useState("");
+
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["communities"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("communities")
-        .select("id, slug, name, description, topic, is_sensitive")
+        .select("id, slug, name, description, topic, is_sensitive, community_members(count)")
         .order("name");
       if (error) throw error;
       return data ?? [];
     },
   });
 
+  const filteredData = data?.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()));
+
   return (
     <AppShell>
-      <header className="mb-6 space-y-2">
-        <h1 className="text-2xl font-extrabold tracking-tight md:text-3xl">Comunidades</h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          Espaços temáticos com moderação ativa. Escolha por assunto e participe no seu ritmo.
-        </p>
+      <header className="mb-6 space-y-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-2">
+            <h1 className="text-2xl font-extrabold tracking-tight md:text-3xl">Comunidades</h1>
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              Encontre um grupo que combine com a sua jornada.
+            </p>
+          </div>
+          {user ? (
+            <CreateCommunityDialog>
+              <Button>Criar comunidade</Button>
+            </CreateCommunityDialog>
+          ) : (
+            <Button asChild>
+              <Link to="/auth">Entre para criar comunidade</Link>
+            </Button>
+          )}
+        </div>
+
+        <div className="relative max-w-sm">
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Buscar comunidades..."
+            className="pl-9"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </header>
 
       {isLoading ? <CardSkeletonList count={4} /> : null}
@@ -56,25 +89,44 @@ function CommunitiesPage() {
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {data?.map((c) => (
-          <Link
-            key={c.id}
-            to="/comunidades/$slug"
-            params={{ slug: c.slug }}
-            className="surface-card block p-5 transition-shadow hover:shadow-lift"
-          >
-            <div className="mb-2 flex items-center gap-2">
-              <Users className="size-4 text-deep" aria-hidden="true" />
-              <h2 className="font-semibold">{c.name}</h2>
-            </div>
-            <p className="text-sm text-muted-foreground">{c.description}</p>
-            {c.is_sensitive ? (
-              <span className="mt-3 inline-flex rounded-full bg-warm/25 px-2.5 py-1 text-[11px] font-semibold text-warm-foreground">
-                Tema sensível
-              </span>
-            ) : null}
-          </Link>
-        ))}
+        {filteredData?.map((c) => {
+          const membersCount = c.community_members?.[0]?.count || 0;
+          return (
+            <Link
+              key={c.id}
+              to="/comunidades/$slug"
+              params={{ slug: c.slug }}
+              className="surface-card flex flex-col overflow-hidden transition-shadow hover:shadow-lift"
+            >
+              <div className="h-24 w-full bg-gradient-to-br from-primary/10 to-primary/5 relative">
+                {/* Fallback Capa */}
+              </div>
+              <div className="p-5 flex-1 flex flex-col">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <h2 className="font-semibold">{c.name}</h2>
+                  <Users className="size-4 text-deep shrink-0" aria-hidden="true" />
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-2 flex-1">{c.description}</p>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  {c.topic ? <span className="font-medium text-foreground">{c.topic}</span> : null}
+                  <span>•</span>
+                  <span>
+                    {membersCount} {membersCount === 1 ? "membro" : "membros"}
+                  </span>
+                </div>
+
+                {c.is_sensitive ? (
+                  <div className="mt-3">
+                    <span className="inline-flex rounded-full bg-warm/25 px-2.5 py-1 text-[11px] font-semibold text-warm-foreground">
+                      Tema sensível
+                    </span>
+                  </div>
+                ) : null}
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       <div className="mt-8">
