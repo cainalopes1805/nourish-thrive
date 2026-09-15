@@ -10,7 +10,11 @@ export const POST_TYPES = [
   { value: "duvida", label: "Dúvida", hint: "Perguntar para a comunidade" },
   { value: "receita", label: "Receita", hint: "Compartilhar um preparo" },
   { value: "educativo", label: "Conteúdo educativo", hint: "Explicar um tema" },
-  { value: "profissional", label: "Conteúdo profissional", hint: "Somente profissionais verificados" },
+  {
+    value: "profissional",
+    label: "Conteúdo profissional",
+    hint: "Somente profissionais verificados",
+  },
   { value: "saude_mental", label: "Saúde mental e relação com a comida", hint: "Tema sensível" },
   { value: "apoio", label: "Pedido de apoio", hint: "Você quer ser ouvido(a)" },
   { value: "enquete", label: "Enquete", hint: "Perguntar com opções" },
@@ -89,7 +93,13 @@ export const HIGH_RISK_CATEGORIES = [
   "aconselhamento_medico",
 ];
 
-export const REPORT_STATUSES = ["pending", "reviewing", "approved", "removed", "escalated"] as const;
+export const REPORT_STATUSES = [
+  "pending",
+  "reviewing",
+  "approved",
+  "removed",
+  "escalated",
+] as const;
 
 export const STATUS_LABEL: Record<string, string> = {
   pending: "Pendente",

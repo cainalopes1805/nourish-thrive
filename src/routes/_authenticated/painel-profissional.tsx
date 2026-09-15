@@ -23,7 +23,10 @@ export const Route = createFileRoute("/_authenticated/painel-profissional")({
           "Solicite verificação de registro profissional, publique horários e acompanhe suas consultas.",
       },
       { property: "og:title", content: "Painel profissional | Mesa Comum" },
-      { property: "og:description", content: "Ferramentas para profissionais de saúde verificados." },
+      {
+        property: "og:description",
+        content: "Ferramentas para profissionais de saúde verificados.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -188,7 +191,12 @@ function ProPanelPage() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="uf">Estado (UF)</Label>
-              <Input id="uf" maxLength={2} value={state} onChange={(e) => setState(e.target.value)} />
+              <Input
+                id="uf"
+                maxLength={2}
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+              />
             </div>
           </div>
           <Button onClick={() => void submitRequest()} disabled={saving}>
@@ -239,7 +247,11 @@ function ProPanelPage() {
                     </Button>
                   ) : null}
                   {a.status === "confirmed" ? (
-                    <Button size="sm" variant="outline" onClick={() => void setStatus(a.id, "completed")}>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => void setStatus(a.id, "completed")}
+                    >
                       Marcar como realizada
                     </Button>
                   ) : null}

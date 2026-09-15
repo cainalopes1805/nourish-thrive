@@ -33,7 +33,7 @@ export function FriendshipButton({ targetId }: FriendshipButtonProps) {
         .from("friendships")
         .select("*")
         .or(
-          `and(user_id_1.eq.${user.id},user_id_2.eq.${targetId}),and(user_id_1.eq.${targetId},user_id_2.eq.${user.id})`
+          `and(user_id_1.eq.${user.id},user_id_2.eq.${targetId}),and(user_id_1.eq.${targetId},user_id_2.eq.${user.id})`,
         )
         .maybeSingle();
 
@@ -88,10 +88,7 @@ export function FriendshipButton({ targetId }: FriendshipButtonProps) {
   const removeFriendship = useMutation({
     mutationFn: async () => {
       if (!friendship) throw new Error("No friendship to remove");
-      const { error } = await supabase
-        .from("friendships")
-        .delete()
-        .eq("id", friendship.id);
+      const { error } = await supabase.from("friendships").delete().eq("id", friendship.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -112,19 +109,13 @@ export function FriendshipButton({ targetId }: FriendshipButtonProps) {
     );
   }
 
-  const isPendingMutations = 
-    sendRequest.isPending || 
-    acceptRequest.isPending || 
-    removeFriendship.isPending;
+  const isPendingMutations =
+    sendRequest.isPending || acceptRequest.isPending || removeFriendship.isPending;
 
   // Sem relação
   if (!friendship) {
     return (
-      <Button
-        onClick={() => sendRequest.mutate()}
-        disabled={isPendingMutations}
-        size="sm"
-      >
+      <Button onClick={() => sendRequest.mutate()} disabled={isPendingMutations} size="sm">
         <UserPlus className="mr-2 size-4" />
         Adicionar aos amigos
       </Button>
@@ -153,15 +144,11 @@ export function FriendshipButton({ targetId }: FriendshipButtonProps) {
         </DropdownMenu>
       );
     }
-    
+
     // Foi a outra pessoa que enviou
     return (
       <div className="flex items-center gap-2">
-        <Button
-          onClick={() => acceptRequest.mutate()}
-          disabled={isPendingMutations}
-          size="sm"
-        >
+        <Button onClick={() => acceptRequest.mutate()} disabled={isPendingMutations} size="sm">
           Aceitar
         </Button>
         <Button

@@ -91,9 +91,7 @@ function MessagesPage() {
       </header>
 
       {conversations.isLoading ? <CardSkeletonList count={2} /> : null}
-      {conversations.isError ? (
-        <ErrorState onRetry={() => void conversations.refetch()} />
-      ) : null}
+      {conversations.isError ? <ErrorState onRetry={() => void conversations.refetch()} /> : null}
 
       {conversations.data && conversations.data.length === 0 ? (
         <EmptyState

@@ -163,8 +163,8 @@ function AuthPage() {
                   <div className="space-y-2">
                     <Label htmlFor="email-in">E-mail</Label>
                     <Input id="email-in" name="email" type="email" autoComplete="email" required />
-                    {errors['email'] && (
-                      <p className="text-xs text-destructive">{errors['email']}</p>
+                    {errors["email"] && (
+                      <p className="text-xs text-destructive">{errors["email"]}</p>
                     )}
                   </div>
                   <div className="space-y-2">
@@ -176,8 +176,8 @@ function AuthPage() {
                       autoComplete="current-password"
                       required
                     />
-                    {errors['password'] && (
-                      <p className="text-xs text-destructive">{errors['password']}</p>
+                    {errors["password"] && (
+                      <p className="text-xs text-destructive">{errors["password"]}</p>
                     )}
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
@@ -195,14 +195,16 @@ function AuthPage() {
                     <p className="text-xs text-muted-foreground">
                       Pode ser diferente do seu nome legal.
                     </p>
-                    {errors['displayName'] && (
-                      <p className="text-xs text-destructive">{errors['displayName']}</p>
+                    {errors["displayName"] && (
+                      <p className="text-xs text-destructive">{errors["displayName"]}</p>
                     )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email-up">E-mail</Label>
                     <Input id="email-up" name="email" type="email" autoComplete="email" required />
-                    {errors['email'] && <p className="text-xs text-destructive">{errors['email']}</p>}
+                    {errors["email"] && (
+                      <p className="text-xs text-destructive">{errors["email"]}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="pass-up">Senha</Label>
@@ -213,8 +215,8 @@ function AuthPage() {
                       autoComplete="new-password"
                       required
                     />
-                    {errors['password'] && (
-                      <p className="text-xs text-destructive">{errors['password']}</p>
+                    {errors["password"] && (
+                      <p className="text-xs text-destructive">{errors["password"]}</p>
                     )}
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>

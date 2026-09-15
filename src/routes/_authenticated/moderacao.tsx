@@ -121,16 +121,28 @@ function ModerationPage() {
             </div>
             {r.details ? <p className="text-sm text-foreground/90">{r.details}</p> : null}
             <div className="flex flex-wrap gap-2">
-              <Button size="sm" variant="outline" onClick={() => void resolve(r.id, "reviewing", "review_started")}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void resolve(r.id, "reviewing", "review_started")}
+              >
                 Em revisão
               </Button>
-              <Button size="sm" variant="outline" onClick={() => void resolve(r.id, "approved", "content_kept")}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => void resolve(r.id, "approved", "content_kept")}
+              >
                 Manter conteúdo
               </Button>
               <Button size="sm" onClick={() => void resolve(r.id, "removed", "content_removed")}>
                 Remover conteúdo
               </Button>
-              <Button size="sm" variant="ghost" onClick={() => void resolve(r.id, "escalated", "escalated")}>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => void resolve(r.id, "escalated", "escalated")}
+              >
                 Escalonar
               </Button>
             </div>

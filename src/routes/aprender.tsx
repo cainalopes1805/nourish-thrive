@@ -12,7 +12,7 @@ type LearnSearch = { categoria?: string };
 
 export const Route = createFileRoute("/aprender")({
   validateSearch: (search: Record<string, unknown>): LearnSearch =>
-    typeof search['categoria'] === "string" ? { categoria: search['categoria'] } : {},
+    typeof search["categoria"] === "string" ? { categoria: search["categoria"] } : {},
 
   head: () => ({
     meta: [

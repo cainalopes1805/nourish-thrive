@@ -108,7 +108,11 @@ function FeedPage() {
         />
       ) : null}
 
-      <div className="space-y-4">{data?.map((p) => <PostCard key={p.id} post={p} />)}</div>
+      <div className="space-y-4">
+        {data?.map((p) => (
+          <PostCard key={p.id} post={p} />
+        ))}
+      </div>
 
       <div className="mt-8">
         <SafetyNote />

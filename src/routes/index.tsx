@@ -138,7 +138,11 @@ function Landing() {
         <Section
           title="Comunidades para conversar com cuidado"
           description="Espaços moderados por tema, com regras claras de convivência."
-          action={<Link to="/comunidades" className="text-sm font-semibold underline">Ver todas</Link>}
+          action={
+            <Link to="/comunidades" className="text-sm font-semibold underline">
+              Ver todas
+            </Link>
+          }
         >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {(communities ?? []).map((c) => (
@@ -159,7 +163,11 @@ function Landing() {
         <Section
           title="Conteúdos recomendados"
           description="Material educativo com autoria identificada e fontes citadas."
-          action={<Link to="/aprender" className="text-sm font-semibold underline">Ir para a biblioteca</Link>}
+          action={
+            <Link to="/aprender" className="text-sm font-semibold underline">
+              Ir para a biblioteca
+            </Link>
+          }
         >
           <div className="grid gap-4 md:grid-cols-3">
             {(articles ?? []).map((a) => (
@@ -185,7 +193,11 @@ function Landing() {
         <Section
           title="Profissionais de saúde verificados"
           description="Perfis com conselho e registro profissional conferidos antes da publicação."
-          action={<Link to="/profissionais" className="text-sm font-semibold underline">Buscar</Link>}
+          action={
+            <Link to="/profissionais" className="text-sm font-semibold underline">
+              Buscar
+            </Link>
+          }
         >
           <div className="grid gap-4 md:grid-cols-3">
             {(pros ?? []).map((p) => (
@@ -312,14 +324,17 @@ function Landing() {
           description="Conteúdo educativo referenciado em fontes oficiais e diretrizes profissionais."
         >
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {["Ministério da Saúde", "ANVISA", "Organização Mundial da Saúde", "Diretrizes clínicas e conselhos profissionais"].map(
-              (s) => (
-                <li key={s} className="surface-card flex items-center gap-2 p-4 text-sm">
-                  <BookOpen className="size-4 text-primary" aria-hidden="true" />
-                  {s}
-                </li>
-              ),
-            )}
+            {[
+              "Ministério da Saúde",
+              "ANVISA",
+              "Organização Mundial da Saúde",
+              "Diretrizes clínicas e conselhos profissionais",
+            ].map((s) => (
+              <li key={s} className="surface-card flex items-center gap-2 p-4 text-sm">
+                <BookOpen className="size-4 text-primary" aria-hidden="true" />
+                {s}
+              </li>
+            ))}
           </ul>
         </Section>
       </main>

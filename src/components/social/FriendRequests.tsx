@@ -18,13 +18,15 @@ export function FriendRequests() {
       // meaning the other person sent the request.
       const { data, error } = await supabase
         .from("friendships")
-        .select(`
+        .select(
+          `
           id,
           user_id_1,
           user_id_2,
           action_user_id,
           created_at
-        `)
+        `,
+        )
         .eq("status", "pending")
         .neq("action_user_id", user!.id)
         .or(`user_id_1.eq.${user!.id},user_id_2.eq.${user!.id}`)
@@ -43,12 +45,12 @@ export function FriendRequests() {
             .select("id, display_name, avatar_url")
             .eq("id", otherId)
             .single();
-            
+
           return {
             ...req,
             profile,
           };
-        })
+        }),
       );
 
       return requestsWithProfiles;
@@ -79,10 +81,7 @@ export function FriendRequests() {
 
   const declineRequest = useMutation({
     mutationFn: async (friendshipId: string) => {
-      const { error } = await supabase
-        .from("friendships")
-        .delete()
-        .eq("id", friendshipId);
+      const { error } = await supabase.from("friendships").delete().eq("id", friendshipId);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -105,19 +104,15 @@ export function FriendRequests() {
   }
 
   if (!requests || requests.length === 0) {
-    return (
-      <div className="text-sm text-muted-foreground">
-        Nenhuma solicitação pendente.
-      </div>
-    );
+    return <div className="text-sm text-muted-foreground">Nenhuma solicitação pendente.</div>;
   }
 
   return (
     <ul className="space-y-3">
       {requests.map((req) => (
         <li key={req.id} className="flex flex-col gap-2 p-2 border rounded-md bg-muted/20">
-          <Link 
-            to="/perfil/$id" 
+          <Link
+            to="/perfil/$id"
             params={{ id: req.profile?.id || "" }}
             className="flex items-center gap-2 hover:underline"
           >
@@ -134,10 +129,10 @@ export function FriendRequests() {
               {req.profile?.display_name || "Usuário"}
             </span>
           </Link>
-          
+
           <div className="flex gap-2">
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               className="w-full h-7 text-xs"
               disabled={acceptRequest.isPending || declineRequest.isPending}
               onClick={() => acceptRequest.mutate(req.id)}
@@ -145,9 +140,9 @@ export function FriendRequests() {
               <Check className="mr-1 size-3" />
               Aceitar
             </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
+            <Button
+              variant="outline"
+              size="sm"
               className="w-full h-7 text-xs"
               disabled={acceptRequest.isPending || declineRequest.isPending}
               onClick={() => declineRequest.mutate(req.id)}

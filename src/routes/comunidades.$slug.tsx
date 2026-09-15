@@ -72,10 +72,7 @@ function CommunityPage() {
   if (community.isError || !community.data) {
     return (
       <AppShell>
-        <ErrorState
-          message="Comunidade não encontrada."
-          onRetry={() => void community.refetch()}
-        />
+        <ErrorState message="Comunidade não encontrada." onRetry={() => void community.refetch()} />
       </AppShell>
     );
   }
@@ -123,7 +120,9 @@ function CommunityPage() {
       ) : null}
 
       <div className="space-y-4">
-        {posts.data?.map((p) => <PostCard key={p.id} post={{ ...p, communityName: c.name }} />)}
+        {posts.data?.map((p) => (
+          <PostCard key={p.id} post={{ ...p, communityName: c.name }} />
+        ))}
       </div>
     </AppShell>
   );

@@ -20,9 +20,7 @@ export function EmptyState({
         {icon ?? <Inbox className="size-5" aria-hidden="true" />}
       </div>
       <h3 className="text-base font-semibold">{title}</h3>
-      {description ? (
-        <p className="max-w-md text-sm text-muted-foreground">{description}</p>
-      ) : null}
+      {description ? <p className="max-w-md text-sm text-muted-foreground">{description}</p> : null}
       {action}
     </div>
   );

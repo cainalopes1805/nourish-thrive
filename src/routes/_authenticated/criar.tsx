@@ -19,7 +19,8 @@ export const Route = createFileRoute("/_authenticated/criar")({
       { title: "Criar publicação | Mesa Comum" },
       {
         name: "description",
-        content: "Compartilhe uma experiência, dúvida, receita ou pedido de apoio com a comunidade.",
+        content:
+          "Compartilhe uma experiência, dúvida, receita ou pedido de apoio com a comunidade.",
       },
       { property: "og:title", content: "Criar publicação | Mesa Comum" },
       { property: "og:description", content: "Publique com segurança e cuidado." },
@@ -59,7 +60,9 @@ function CreatePostPage() {
   });
 
   function toggleTopic(value: string) {
-    setTopics((prev) => (prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]));
+    setTopics((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value],
+    );
   }
 
   async function submit() {

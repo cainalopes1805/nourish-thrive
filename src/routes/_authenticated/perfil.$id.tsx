@@ -14,7 +14,7 @@ function calculateAge(dateOfBirth: string | null): number | null {
   if (!dateOfBirth) return null;
   const dob = new Date(dateOfBirth);
   if (isNaN(dob.getTime())) return null;
-  
+
   const today = new Date();
   let age = today.getFullYear() - dob.getFullYear();
   const m = today.getMonth() - dob.getMonth();
@@ -27,7 +27,11 @@ function calculateAge(dateOfBirth: string | null): number | null {
 function ProfilePage() {
   const { id } = Route.useParams();
 
-  const { data: profile, isLoading, error } = useQuery({
+  const {
+    data: profile,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["public-profile", id],
     queryFn: async () => {
       // Must use the RPC exclusively, protecting privacy.
@@ -38,7 +42,7 @@ function ProfilePage() {
       if (error) {
         throw error;
       }
-      
+
       return data;
     },
     // The query will fail or return null if not found
@@ -84,11 +88,7 @@ function ProfilePage() {
           {/* Banner */}
           <div className="h-48 w-full bg-muted relative">
             {p.banner_url ? (
-              <img 
-                src={p.banner_url} 
-                alt="Capa" 
-                className="w-full h-full object-cover"
-              />
+              <img src={p.banner_url} alt="Capa" className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full bg-gradient-to-r from-primary/10 to-primary/5" />
             )}
@@ -99,9 +99,9 @@ function ProfilePage() {
             <div className="absolute -top-16 left-6">
               <div className="h-32 w-32 rounded-full border-4 border-background bg-muted overflow-hidden">
                 {p.avatar_url ? (
-                  <img 
-                    src={p.avatar_url} 
-                    alt={p.display_name || "Usuário"} 
+                  <img
+                    src={p.avatar_url}
+                    alt={p.display_name || "Usuário"}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -120,10 +120,8 @@ function ProfilePage() {
                   <FriendshipButton targetId={p.id} />
                 </div>
               </div>
-              
-              {p.bio && (
-                <p className="text-muted-foreground text-sm max-w-2xl">{p.bio}</p>
-              )}
+
+              {p.bio && <p className="text-muted-foreground text-sm max-w-2xl">{p.bio}</p>}
 
               {/* Informações Públicas (Location, Age, Nationality) */}
               <div className="flex flex-wrap gap-4 pt-2 text-sm text-muted-foreground">
@@ -169,7 +167,7 @@ function ProfilePage() {
                 <h2 className="text-lg font-semibold">Interesses</h2>
                 <div className="flex flex-wrap gap-2">
                   {interests.map((interest: string) => (
-                    <span 
+                    <span
                       key={interest}
                       className="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full font-medium"
                     >

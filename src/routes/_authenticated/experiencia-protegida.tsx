@@ -46,7 +46,9 @@ function ProtectedExperiencePage() {
   }, [profile]);
 
   function toggle(value: string) {
-    setHidden((prev) => (prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value]));
+    setHidden((prev) =>
+      prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value],
+    );
   }
 
   async function save() {

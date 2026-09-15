@@ -59,7 +59,7 @@ function MySpacePage() {
     show_location: true,
     show_age: false,
     show_nationality: true,
-    visible_interests: [] as string[]
+    visible_interests: [] as string[],
   });
 
   const [saving, setSaving] = useState(false);
@@ -76,18 +76,26 @@ function MySpacePage() {
     setNationality(profile.nationality ?? "");
     setLocation(profile.location ?? "");
     setInterests(profile.interests ?? []);
-    
+
     // Parse privacy preferences safely
-    const defaultPrivacy = { show_location: true, show_age: false, show_nationality: true, visible_interests: [] };
-    const savedPrivacy = typeof profile.privacy_preferences === 'object' && profile.privacy_preferences !== null 
-      ? profile.privacy_preferences as Record<string, any> 
-      : {};
-      
+    const defaultPrivacy = {
+      show_location: true,
+      show_age: false,
+      show_nationality: true,
+      visible_interests: [],
+    };
+    const savedPrivacy =
+      typeof profile.privacy_preferences === "object" && profile.privacy_preferences !== null
+        ? (profile.privacy_preferences as Record<string, any>)
+        : {};
+
     setPrivacy({
       show_location: savedPrivacy.show_location ?? defaultPrivacy.show_location,
       show_age: savedPrivacy.show_age ?? defaultPrivacy.show_age,
       show_nationality: savedPrivacy.show_nationality ?? defaultPrivacy.show_nationality,
-      visible_interests: Array.isArray(savedPrivacy.visible_interests) ? savedPrivacy.visible_interests : defaultPrivacy.visible_interests
+      visible_interests: Array.isArray(savedPrivacy.visible_interests)
+        ? savedPrivacy.visible_interests
+        : defaultPrivacy.visible_interests,
     });
   }, [profile]);
 
@@ -113,11 +121,11 @@ function MySpacePage() {
   }
 
   function toggleVisibleInterest(value: string) {
-    setPrivacy(prev => ({
+    setPrivacy((prev) => ({
       ...prev,
-      visible_interests: prev.visible_interests.includes(value) 
-        ? prev.visible_interests.filter(i => i !== value) 
-        : [...prev.visible_interests, value]
+      visible_interests: prev.visible_interests.includes(value)
+        ? prev.visible_interests.filter((i) => i !== value)
+        : [...prev.visible_interests, value],
     }));
   }
 
@@ -126,9 +134,9 @@ function MySpacePage() {
     setSaving(true);
     const { error } = await supabase
       .from("profiles")
-      .update({ 
-        display_name: displayName.trim(), 
-        bio: bio.trim(), 
+      .update({
+        display_name: displayName.trim(),
+        bio: bio.trim(),
         about_me: aboutMe.trim(),
         location: location.trim(),
         date_of_birth: dateOfBirth || null,
@@ -137,17 +145,19 @@ function MySpacePage() {
         interests,
         avatar_url: avatarUrl,
         banner_url: bannerUrl,
-        privacy_preferences: privacy
+        privacy_preferences: privacy,
       })
       .eq("id", user.id);
-      
+
     setSaving(false);
-    
+
     if (error) {
       toast.error("Não foi possível salvar o perfil.");
       // Check if it's a known error from missing columns (remote environment out of sync)
-      if (error.message?.includes('column')) {
-        toast.error("Erro de ambiente remoto: a migration do banco de dados ainda não foi aplicada. Coluna não existe.");
+      if (error.message?.includes("column")) {
+        toast.error(
+          "Erro de ambiente remoto: a migration do banco de dados ainda não foi aplicada. Coluna não existe.",
+        );
       }
       return;
     }
@@ -169,23 +179,23 @@ function MySpacePage() {
           {/* 1. Identidade */}
           <section className="surface-card space-y-4 p-6">
             <h2 className="text-lg font-semibold border-b pb-2">1. Identidade</h2>
-            
+
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-4">
               <div className="space-y-1.5">
                 <Label>Capa do perfil (opcional)</Label>
-                <ImageUploader 
-                  type="banner" 
-                  currentUrl={bannerUrl} 
-                  onUploadComplete={setBannerUrl} 
+                <ImageUploader
+                  type="banner"
+                  currentUrl={bannerUrl}
+                  onUploadComplete={setBannerUrl}
                   className="h-32 w-full"
                 />
               </div>
               <div className="space-y-1.5">
                 <Label>Foto de perfil (opcional)</Label>
-                <ImageUploader 
-                  type="avatar" 
-                  currentUrl={avatarUrl} 
-                  onUploadComplete={setAvatarUrl} 
+                <ImageUploader
+                  type="avatar"
+                  currentUrl={avatarUrl}
+                  onUploadComplete={setAvatarUrl}
                   className="h-32 w-32 rounded-full mx-auto sm:mx-0"
                 />
               </div>
@@ -209,29 +219,33 @@ function MySpacePage() {
             <div className="space-y-1.5">
               <div className="flex justify-between">
                 <Label htmlFor="bio">Resumo (Bio)</Label>
-                <span className="text-xs text-muted-foreground">{bio.length}/{BIO_MAX_LENGTH}</span>
+                <span className="text-xs text-muted-foreground">
+                  {bio.length}/{BIO_MAX_LENGTH}
+                </span>
               </div>
-              <Textarea 
-                id="bio" 
-                rows={2} 
+              <Textarea
+                id="bio"
+                rows={2}
                 maxLength={BIO_MAX_LENGTH}
-                value={bio} 
-                onChange={(e) => setBio(e.target.value)} 
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
                 placeholder="Uma frase curta sobre você..."
               />
             </div>
-            
+
             <div className="space-y-1.5 mt-4">
               <div className="flex justify-between">
                 <Label htmlFor="about">Sobre mim</Label>
-                <span className="text-xs text-muted-foreground">{aboutMe.length}/{ABOUT_ME_MAX_LENGTH}</span>
+                <span className="text-xs text-muted-foreground">
+                  {aboutMe.length}/{ABOUT_ME_MAX_LENGTH}
+                </span>
               </div>
-              <Textarea 
-                id="about" 
-                rows={5} 
+              <Textarea
+                id="about"
+                rows={5}
                 maxLength={ABOUT_ME_MAX_LENGTH}
-                value={aboutMe} 
-                onChange={(e) => setAboutMe(e.target.value)} 
+                value={aboutMe}
+                onChange={(e) => setAboutMe(e.target.value)}
                 placeholder="Conte mais sobre sua história, experiências ou o que te traz à comunidade..."
               />
             </div>
@@ -258,7 +272,9 @@ function MySpacePage() {
                   onChange={(e) => setGender(e.target.value)}
                   placeholder="Ex: Feminino, Masculino, Não-binário..."
                 />
-                <p className="text-[10px] text-muted-foreground">Opcional. Nunca exibido publicamente.</p>
+                <p className="text-[10px] text-muted-foreground">
+                  Opcional. Nunca exibido publicamente.
+                </p>
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="nacionalidade">Nacionalidade</Label>
@@ -291,7 +307,7 @@ function MySpacePage() {
               {INTERESTS.map((i) => (
                 <label
                   key={i}
-                  className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm cursor-pointer transition-colors ${interests.includes(i) ? 'border-primary bg-primary/10' : 'border-border'}`}
+                  className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm cursor-pointer transition-colors ${interests.includes(i) ? "border-primary bg-primary/10" : "border-border"}`}
                 >
                   <input
                     type="checkbox"
@@ -307,31 +323,36 @@ function MySpacePage() {
 
           {/* 5. Privacidade */}
           <section className="surface-card space-y-4 p-6">
-            <h2 className="text-lg font-semibold border-b pb-2">5. Privacidade do Perfil Público</h2>
+            <h2 className="text-lg font-semibold border-b pb-2">
+              5. Privacidade do Perfil Público
+            </h2>
             <p className="text-sm text-muted-foreground mb-4">
-              Controle o que outros membros da comunidade podem ver no seu perfil. Suas preferências são garantidas pelo banco de dados.
+              Controle o que outros membros da comunidade podem ver no seu perfil. Suas preferências
+              são garantidas pelo banco de dados.
             </p>
-            
+
             <div className="space-y-4">
               <label className="flex items-start gap-3 p-3 border rounded-md cursor-pointer hover:bg-muted/30">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   className="mt-1"
                   checked={privacy.show_age}
-                  onChange={(e) => setPrivacy(p => ({...p, show_age: e.target.checked}))}
+                  onChange={(e) => setPrivacy((p) => ({ ...p, show_age: e.target.checked }))}
                 />
                 <div>
                   <div className="font-medium text-sm">Mostrar Idade</div>
-                  <div className="text-xs text-muted-foreground">Calcula e exibe sua idade publicamente a partir da data de nascimento.</div>
+                  <div className="text-xs text-muted-foreground">
+                    Calcula e exibe sua idade publicamente a partir da data de nascimento.
+                  </div>
                 </div>
               </label>
 
               <label className="flex items-start gap-3 p-3 border rounded-md cursor-pointer hover:bg-muted/30">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   className="mt-1"
                   checked={privacy.show_location}
-                  onChange={(e) => setPrivacy(p => ({...p, show_location: e.target.checked}))}
+                  onChange={(e) => setPrivacy((p) => ({ ...p, show_location: e.target.checked }))}
                 />
                 <div>
                   <div className="font-medium text-sm">Mostrar Localização</div>
@@ -340,11 +361,13 @@ function MySpacePage() {
               </label>
 
               <label className="flex items-start gap-3 p-3 border rounded-md cursor-pointer hover:bg-muted/30">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   className="mt-1"
                   checked={privacy.show_nationality}
-                  onChange={(e) => setPrivacy(p => ({...p, show_nationality: e.target.checked}))}
+                  onChange={(e) =>
+                    setPrivacy((p) => ({ ...p, show_nationality: e.target.checked }))
+                  }
                 />
                 <div>
                   <div className="font-medium text-sm">Mostrar Nacionalidade</div>
@@ -355,7 +378,9 @@ function MySpacePage() {
               {interests.length > 0 && (
                 <div className="mt-4 p-3 border rounded-md">
                   <div className="font-medium text-sm mb-1">Interesses Visíveis</div>
-                  <div className="text-xs text-muted-foreground mb-3">Selecione quais dos seus interesses você quer exibir no seu perfil público:</div>
+                  <div className="text-xs text-muted-foreground mb-3">
+                    Selecione quais dos seus interesses você quer exibir no seu perfil público:
+                  </div>
                   <div className="flex flex-wrap gap-2">
                     {interests.map((i) => (
                       <label
@@ -444,7 +469,7 @@ function MySpacePage() {
           </section>
         </aside>
       </div>
-      
+
       <div className="mt-8">
         <SafetyNote />
       </div>
