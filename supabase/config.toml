@@ -1,1 +1,5 @@
 project_id = "gombfmbgspipstxddbhk"
+
+# New sign-ups are active immediately, without clicking a confirmation link.
+[auth.email]
+enable_confirmations = false
