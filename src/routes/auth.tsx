@@ -44,6 +44,8 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pendingConfirm, setPendingConfirm] = useState(false);
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
 
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -57,15 +59,41 @@ function AuthPage() {
       return;
     }
     setErrors({});
+    setUnconfirmedEmail(null);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
     setLoading(false);
     if (error) {
+      if (error.code === "email_not_confirmed") {
+        setUnconfirmedEmail(parsed.data.email);
+        toast.error("Confirme seu e-mail para entrar", {
+          description: "Enviamos um link de confirmação quando você criou a conta.",
+        });
+        return;
+      }
       toast.error("Não foi possível entrar", { description: error.message });
       return;
     }
     toast.success("Bem-vindo(a) de volta");
     navigate({ to: "/feed" });
+  }
+
+  async function handleResendConfirmation() {
+    if (!unconfirmedEmail) return;
+    setResending(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: unconfirmedEmail,
+      options: { emailRedirectTo: window.location.origin },
+    });
+    setResending(false);
+    if (error) {
+      toast.error("Não foi possível reenviar o e-mail", { description: error.message });
+      return;
+    }
+    toast.success("E-mail de confirmação reenviado", {
+      description: "Verifique também a caixa de spam.",
+    });
   }
 
   async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
@@ -162,7 +190,14 @@ function AuthPage() {
                   <h1 className="text-xl font-bold">Entrar na comunidade</h1>
                   <div className="space-y-2">
                     <Label htmlFor="email-in">E-mail</Label>
-                    <Input id="email-in" name="email" type="email" autoComplete="email" required />
+                    <Input
+                      id="email-in"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      onChange={() => setUnconfirmedEmail(null)}
+                    />
                     {errors["email"] && (
                       <p className="text-xs text-destructive">{errors["email"]}</p>
                     )}
@@ -183,6 +218,24 @@ function AuthPage() {
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Entrando..." : "Entrar"}
                   </Button>
+                  {unconfirmedEmail ? (
+                    <div className="space-y-2 rounded-lg bg-warm/20 p-3 text-xs text-warm-foreground">
+                      <p>
+                        Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada (e o
+                        spam) ou reenvie o link de confirmação.
+                      </p>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        disabled={resending}
+                        onClick={handleResendConfirmation}
+                      >
+                        {resending ? "Reenviando..." : "Reenviar e-mail de confirmação"}
+                      </Button>
+                    </div>
+                  ) : null}
                 </form>
               </TabsContent>
 

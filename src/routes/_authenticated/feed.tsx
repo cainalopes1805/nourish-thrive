@@ -41,7 +41,7 @@ function FeedPage() {
       let q = supabase
         .from("posts")
         .select(
-          "id, title, body, post_type, tags, sensitive_topics, is_anonymous, is_professional_content, created_at, community_id",
+          "id, title, body, post_type, tags, sensitive_topics, is_anonymous, is_professional_content, created_at, community_id, reactions(count), comments(count)",
         )
         .eq("status", "published")
         .order("created_at", { ascending: false })
@@ -49,7 +49,11 @@ function FeedPage() {
       if (type) q = q.eq("post_type", type);
       const { data, error } = await q;
       if (error) throw error;
-      const posts = (data ?? []) as (FeedPost & { community_id: string | null })[];
+      const posts = (data ?? []).map((p) => ({
+        ...p,
+        reactions: p.reactions?.[0]?.count ?? 0,
+        comments: p.comments?.[0]?.count ?? 0,
+      })) as (FeedPost & { community_id: string | null })[];
       return recoveryMode ? posts.filter((p) => p.sensitive_topics.length === 0) : posts;
     },
   });
