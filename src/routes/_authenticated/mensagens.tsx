@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Send, Stethoscope } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { CardSkeletonList, EmptyState, ErrorState } from "@/components/common/states";
 import { SafetyNote } from "@/components/common/SafetyNote";
@@ -119,64 +119,92 @@ function MessagesPage() {
       ) : null}
 
       {conversations.data && conversations.data.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-[280px_1fr]">
-          <ul className="surface-card divide-y divide-border p-2">
-            {conversations.data.map((c) => (
-              <li key={c.id}>
-                <button
-                  onClick={() => setActiveId(c.id)}
-                  className={cn(
-                    "flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-secondary",
-                    currentId === c.id && "bg-secondary font-semibold text-deep",
-                  )}
-                >
-                  <span className="size-9 shrink-0 overflow-hidden rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
-                    {c.otherAvatar ? (
-                      <img src={c.otherAvatar} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      c.otherName.charAt(0).toUpperCase()
+        <div className="grid gap-4 md:grid-cols-[300px_1fr]">
+          <ul className="surface-card space-y-1 p-2">
+            {conversations.data.map((c) => {
+              const active = currentId === c.id;
+              return (
+                <li key={c.id}>
+                  <button
+                    onClick={() => setActiveId(c.id)}
+                    className={cn(
+                      "flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-sm transition-all",
+                      active
+                        ? "bg-gradient-to-r from-primary to-warm text-primary-foreground shadow-glow"
+                        : "hover:bg-secondary",
                     )}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate">{c.otherName}</span>
-                    <span className="block text-xs font-normal text-muted-foreground">
-                      {c.is_clinical ? "Conversa clínica" : "Conversa"} • desde{" "}
-                      {new Date(c.created_at).toLocaleDateString("pt-BR")}
+                  >
+                    <span className="size-10 shrink-0 overflow-hidden rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
+                      {c.otherAvatar ? (
+                        <img src={c.otherAvatar} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        c.otherName.charAt(0).toUpperCase()
+                      )}
                     </span>
-                  </span>
-                </button>
-              </li>
-            ))}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-semibold">{c.otherName}</span>
+                      <span
+                        className={cn(
+                          "mt-0.5 flex items-center gap-1 text-xs font-normal",
+                          active ? "opacity-85" : "text-muted-foreground",
+                        )}
+                      >
+                        {c.is_clinical ? (
+                          <span className="inline-flex items-center gap-1">
+                            <Stethoscope className="size-3" aria-hidden="true" /> Clínica
+                          </span>
+                        ) : (
+                          "Conversa"
+                        )}
+                        {" • "}
+                        {new Date(c.created_at).toLocaleDateString("pt-BR")}
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
 
           <section className="surface-card flex min-h-96 flex-col p-4">
             <ul className="flex-1 space-y-3 overflow-y-auto">
-              {messages.data?.map((m) => (
-                <li
-                  key={m.id}
-                  className={cn(
-                    "max-w-[80%] rounded-2xl px-4 py-2 text-sm",
-                    m.sender_id === user?.id
-                      ? "ml-auto bg-primary text-primary-foreground"
-                      : "bg-secondary text-secondary-foreground",
-                  )}
-                >
-                  {m.body}
-                </li>
-              ))}
+              {messages.data?.map((m) => {
+                const mine = m.sender_id === user?.id;
+                return (
+                  <li key={m.id} className={cn("flex flex-col", mine ? "items-end" : "items-start")}>
+                    <span
+                      className={cn(
+                        "max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm",
+                        mine
+                          ? "rounded-br-sm bg-gradient-to-br from-primary to-warm text-primary-foreground"
+                          : "rounded-bl-sm bg-secondary text-secondary-foreground",
+                      )}
+                    >
+                      {m.body}
+                    </span>
+                    <span className="mt-1 px-1 text-[10px] text-muted-foreground">
+                      {new Date(m.created_at).toLocaleTimeString("pt-BR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                  </li>
+                );
+              })}
               {messages.data && messages.data.length === 0 ? (
                 <li className="text-sm text-muted-foreground">Nenhuma mensagem nesta conversa.</li>
               ) : null}
             </ul>
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 flex items-end gap-2">
               <Textarea
-                rows={3}
+                rows={2}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Escreva sua mensagem"
+                className="flex-1"
               />
-              <Button onClick={() => void send()} disabled={!text.trim()}>
-                Enviar
+              <Button onClick={() => void send()} disabled={!text.trim()} size="icon" aria-label="Enviar">
+                <Send className="size-4" />
               </Button>
             </div>
           </section>

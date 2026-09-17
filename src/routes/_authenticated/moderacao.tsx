@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { REPORT_CATEGORIES, STATUS_LABEL } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/hooks/useSession";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/moderacao")({
   head: () => ({
@@ -101,13 +102,24 @@ function ModerationPage() {
       ) : null}
 
       <ul className="space-y-4">
-        {reports.data?.map((r) => (
-          <li key={r.id} className="surface-card space-y-3 p-5">
+        {reports.data?.map((r, i) => (
+          <li
+            key={r.id}
+            style={{ animationDelay: `${Math.min(i * 60, 300)}ms` }}
+            className="surface-card card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards relative space-y-3 overflow-hidden p-5 duration-500"
+          >
+            <span
+              className={cn(
+                "absolute inset-y-0 left-0 w-1.5",
+                r.risk_level === "high" ? "bg-destructive" : "bg-primary/40",
+              )}
+              aria-hidden="true"
+            />
             <div className="flex flex-wrap items-center gap-2 text-xs">
               <span
                 className={
                   r.risk_level === "high"
-                    ? "rounded-full bg-accent/20 px-2.5 py-1 font-semibold text-accent"
+                    ? "rounded-full bg-destructive/15 px-2.5 py-1 font-semibold text-destructive"
                     : "rounded-full bg-secondary px-2.5 py-1 font-semibold text-secondary-foreground"
                 }
               >

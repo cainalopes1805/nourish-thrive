@@ -77,7 +77,7 @@ function ProfilePage() {
   });
 
   const activityQuery = useQuery({
-    queryKey: ["profile-activity", id],
+    queryKey: ["profile-activity", id, user?.id],
     enabled: !!profileQuery.data,
     queryFn: async () => {
       const [postsResult, membershipsResult, followersResult, followingResult] = await Promise.all([
@@ -105,13 +105,29 @@ function ProfilePage() {
       if (communitiesError) throw communitiesError;
 
       const communityById = new Map((communities ?? []).map((community) => [community.id, community]));
-      const posts = (postsResult.data ?? []).map((post) => ({
+
+      const likedPostIds = new Set<string>();
+      const postRows = postsResult.data ?? [];
+      if (user && postRows.length > 0) {
+        const { data: myReactions } = await supabase
+          .from("reactions")
+          .select("post_id")
+          .eq("user_id", user.id)
+          .in(
+            "post_id",
+            postRows.map((p) => p.id),
+          );
+        for (const r of myReactions ?? []) likedPostIds.add(r.post_id);
+      }
+
+      const posts = postRows.map((post) => ({
         ...post,
         authorId: post.author_id,
         imageUrl: post.image_url,
         communityName: post.community_id ? communityById.get(post.community_id)?.name : null,
         reactions: post.reactions?.[0]?.count ?? 0,
         comments: post.comments?.[0]?.count ?? 0,
+        hasReacted: likedPostIds.has(post.id),
       })) as FeedPost[];
 
       return {

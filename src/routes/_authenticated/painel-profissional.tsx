@@ -13,6 +13,14 @@ import { PROFESSIONS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/hooks/useSession";
 import { ImageUploader } from "@/components/social/ImageUploader";
+import { cn } from "@/lib/utils";
+
+const appointmentStatusClass: Record<string, string> = {
+  requested: "bg-warm/25 text-warm-foreground",
+  confirmed: "bg-primary/15 text-primary",
+  completed: "bg-secondary text-secondary-foreground",
+  cancelled: "bg-destructive/15 text-destructive",
+};
 
 export const Route = createFileRoute("/_authenticated/painel-profissional")({
   head: () => ({
@@ -268,10 +276,22 @@ function ProPanelPage() {
               <EmptyState title="Nenhuma consulta ainda" />
             ) : null}
             <ul className="space-y-3">
-              {appointments.data?.map((a) => (
-                <li key={a.id} className="surface-card flex flex-wrap items-center gap-3 p-4">
+              {appointments.data?.map((a, i) => (
+                <li
+                  key={a.id}
+                  style={{ animationDelay: `${Math.min(i * 60, 300)}ms` }}
+                  className="surface-card card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards flex flex-wrap items-center gap-3 p-4 duration-500"
+                >
                   <span className="flex-1 text-sm">
-                    {new Date(a.starts_at).toLocaleString("pt-BR")} • {a.modality} • {a.status}
+                    {new Date(a.starts_at).toLocaleString("pt-BR")} • {a.modality}
+                  </span>
+                  <span
+                    className={cn(
+                      "rounded-full px-3 py-1 text-xs font-semibold",
+                      appointmentStatusClass[a.status] ?? "bg-secondary text-secondary-foreground",
+                    )}
+                  >
+                    {a.status}
                   </span>
                   {a.status === "requested" ? (
                     <Button size="sm" onClick={() => void setStatus(a.id, "confirmed")}>

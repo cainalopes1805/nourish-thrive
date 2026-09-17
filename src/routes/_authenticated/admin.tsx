@@ -104,9 +104,13 @@ function AdminPage() {
         {requests.data && requests.data.length === 0 ? (
           <EmptyState title="Nenhuma solicitação" />
         ) : null}
-        <ul className="space-y-3">
-          {requests.data?.map((r) => (
-            <li key={r.id} className="surface-card flex flex-wrap items-center gap-3 p-4">
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {requests.data?.map((r, i) => (
+            <li
+              key={r.id}
+              style={{ animationDelay: `${Math.min(i * 60, 300)}ms` }}
+              className="surface-card card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards flex flex-wrap items-center gap-3 p-4 duration-500"
+            >
               <div className="flex-1">
                 <p className="font-medium">{r.profession}</p>
                 <p className="text-sm text-muted-foreground">
@@ -114,18 +118,31 @@ function AdminPage() {
                   {new Date(r.created_at).toLocaleDateString("pt-BR")}
                 </p>
               </div>
-              <span className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold">
+              <span
+                className={
+                  r.status === "pending"
+                    ? "rounded-full bg-warm/25 px-3 py-1 text-xs font-semibold text-warm-foreground"
+                    : r.status === "approved"
+                      ? "rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary"
+                      : "rounded-full bg-destructive/15 px-3 py-1 text-xs font-semibold text-destructive"
+                }
+              >
                 {r.status}
               </span>
               {r.status === "pending" ? (
-                <>
-                  <Button size="sm" onClick={() => void review(r.id, "approved")}>
+                <div className="flex w-full gap-2">
+                  <Button size="sm" className="flex-1" onClick={() => void review(r.id, "approved")}>
                     Aprovar
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => void review(r.id, "rejected")}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => void review(r.id, "rejected")}
+                  >
                     Recusar
                   </Button>
-                </>
+                </div>
               ) : null}
             </li>
           ))}

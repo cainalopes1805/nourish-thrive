@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, Video, MapPin, X } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { CardSkeletonList, EmptyState, ErrorState } from "@/components/common/states";
 import { SafetyNote } from "@/components/common/SafetyNote";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/consultas")({
   head: () => ({
@@ -31,6 +32,13 @@ const statusLabel: Record<string, string> = {
   confirmed: "Confirmada",
   completed: "Realizada",
   cancelled: "Cancelada",
+};
+
+const statusBadgeClass: Record<string, string> = {
+  requested: "bg-warm/25 text-warm-foreground",
+  confirmed: "bg-primary/15 text-primary",
+  completed: "bg-secondary text-secondary-foreground",
+  cancelled: "bg-destructive/15 text-destructive",
 };
 
 function AppointmentsPage() {
@@ -96,27 +104,59 @@ function AppointmentsPage() {
         />
       ) : null}
 
-      <ul className="space-y-4">
-        {data?.map((a) => {
+      <ul className="grid gap-4 sm:grid-cols-2">
+        {data?.map((a, i) => {
           const pro = a.professional_profiles as unknown as {
             name: string;
             profession: string;
           } | null;
           return (
-            <li key={a.id} className="surface-card flex flex-wrap items-center gap-4 p-5">
-              <div className="min-w-52 flex-1">
-                <p className="font-semibold">{pro?.name ?? "Profissional"}</p>
-                <p className="text-sm text-muted-foreground">{pro?.profession}</p>
-                <p className="mt-1 text-sm">
-                  {new Date(a.starts_at).toLocaleString("pt-BR")} • {a.modality}
-                </p>
+            <li
+              key={a.id}
+              style={{ animationDelay: `${Math.min(i * 60, 300)}ms` }}
+              className="surface-card card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards flex flex-col gap-3 p-5 duration-500"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-warm font-bold text-primary-foreground">
+                    {(pro?.name ?? "?").charAt(0).toUpperCase()}
+                  </span>
+                  <div>
+                    <p className="font-semibold">{pro?.name ?? "Profissional"}</p>
+                    <p className="text-xs text-muted-foreground">{pro?.profession}</p>
+                  </div>
+                </div>
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full px-3 py-1 text-xs font-semibold",
+                    statusBadgeClass[a.status] ?? "bg-secondary text-secondary-foreground",
+                  )}
+                >
+                  {statusLabel[a.status] ?? a.status}
+                </span>
               </div>
-              <span className="rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground">
-                {statusLabel[a.status] ?? a.status}
-              </span>
+              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                <span>{new Date(a.starts_at).toLocaleString("pt-BR")}</span>
+                <span className="inline-flex items-center gap-1">
+                  {a.modality === "teleconsulta" ? (
+                    <Video className="size-3.5" aria-hidden="true" />
+                  ) : (
+                    <MapPin className="size-3.5" aria-hidden="true" />
+                  )}
+                  {a.modality}
+                </span>
+              </div>
+              {a.reason_note ? (
+                <p className="text-sm text-foreground/80">{a.reason_note}</p>
+              ) : null}
               {a.status === "requested" || a.status === "confirmed" ? (
-                <Button size="sm" variant="outline" onClick={() => void cancel(a.id)}>
-                  Cancelar
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="self-start"
+                  onClick={() => void cancel(a.id)}
+                >
+                  <X className="size-3.5" /> Cancelar
                 </Button>
               ) : null}
             </li>

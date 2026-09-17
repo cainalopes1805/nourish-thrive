@@ -81,13 +81,13 @@ function CommunityPage() {
   });
 
   const posts = useQuery({
-    queryKey: ["community-posts", c?.id],
+    queryKey: ["community-posts", c?.id, user?.id],
     enabled: !!c?.id,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("posts")
         .select(
-          "id, title, body, post_type, tags, sensitive_topics, is_anonymous, is_professional_content, created_at, image_url, author_id",
+          "id, title, body, post_type, tags, sensitive_topics, is_anonymous, is_professional_content, created_at, image_url, author_id, reactions(count), comments(count)",
         )
         .eq("community_id", c!.id)
         .eq("status", "published")
@@ -106,12 +106,28 @@ function CommunityPage() {
         for (const p of profiles ?? []) profilesById.set(p.id, p);
       }
 
+      const likedPostIds = new Set<string>();
+      if (user && rows.length > 0) {
+        const { data: myReactions } = await supabase
+          .from("reactions")
+          .select("post_id")
+          .eq("user_id", user.id)
+          .in(
+            "post_id",
+            rows.map((p) => p.id),
+          );
+        for (const r of myReactions ?? []) likedPostIds.add(r.post_id);
+      }
+
       return rows.map((p: any) => ({
         ...p,
         authorId: p.author_id,
         authorName: profilesById.get(p.author_id)?.display_name,
         authorAvatar: profilesById.get(p.author_id)?.avatar_url,
         imageUrl: p.image_url,
+        reactions: p.reactions?.[0]?.count ?? 0,
+        comments: p.comments?.[0]?.count ?? 0,
+        hasReacted: likedPostIds.has(p.id),
       })) as FeedPost[];
     },
   });

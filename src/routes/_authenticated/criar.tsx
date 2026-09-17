@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { POST_TYPES, SENSITIVE_TOPICS } from "@/lib/constants";
+import { POST_TYPES, SENSITIVE_TOPICS, POST_TYPE_BADGE_CLASS } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
 import { useRoles } from "@/hooks/useSession";
@@ -61,10 +62,17 @@ function CreatePostPage() {
     },
   });
 
+  const allowsImage = postType !== "duvida";
+
   function toggleTopic(value: string) {
     setTopics((prev) =>
       prev.includes(value) ? prev.filter((t) => t !== value) : [...prev, value],
     );
+  }
+
+  function selectPostType(value: string) {
+    setPostType(value);
+    if (value === "duvida") setImageUrl(null);
   }
 
   async function submit() {
@@ -89,7 +97,7 @@ function CreatePostPage() {
         is_anonymous: anonymous,
         is_professional_content: postType === "profissional" && !!isPro,
         sensitive_topics: topics,
-        image_url: imageUrl,
+        image_url: allowsImage ? imageUrl : null,
         status: "published",
       })
       .select("id")
@@ -116,19 +124,36 @@ function CreatePostPage() {
 
         <div className="surface-card space-y-4 p-6">
           <div className="space-y-1.5">
-            <Label htmlFor="tipo">Tipo de publicação</Label>
-            <select
-              id="tipo"
-              value={postType}
-              onChange={(e) => setPostType(e.target.value)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              {POST_TYPES.filter((t) => t.value !== "profissional" || isPro).map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label} — {t.hint}
-                </option>
-              ))}
-            </select>
+            <Label>Tipo de publicação</Label>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {POST_TYPES.filter((t) => t.value !== "profissional" || isPro).map((t) => {
+                const selected = postType === t.value;
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => selectPostType(t.value)}
+                    className={cn(
+                      "card-pop rounded-xl border p-3 text-left text-sm transition-all",
+                      selected
+                        ? "border-transparent shadow-glow"
+                        : "border-border hover:border-primary/40",
+                      selected ? POST_TYPE_BADGE_CLASS[t.value] : undefined,
+                    )}
+                  >
+                    <span className="block font-semibold">{t.label}</span>
+                    <span
+                      className={cn(
+                        "block text-xs",
+                        selected ? "opacity-80" : "text-muted-foreground",
+                      )}
+                    >
+                      {t.hint}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="space-y-1.5">
@@ -164,16 +189,22 @@ function CreatePostPage() {
             />
           </div>
 
-          <div className="space-y-1.5">
-            <Label>Imagem (opcional)</Label>
-            <ImageUploader
-              type="post"
-              currentUrl={imageUrl}
-              onUploadComplete={setImageUrl}
-              onRemove={() => setImageUrl(null)}
-              className="h-48 w-full"
-            />
-          </div>
+          {allowsImage ? (
+            <div className="space-y-1.5">
+              <Label>Imagem (opcional)</Label>
+              <ImageUploader
+                type="post"
+                currentUrl={imageUrl}
+                onUploadComplete={setImageUrl}
+                onRemove={() => setImageUrl(null)}
+                className="h-48 w-full"
+              />
+            </div>
+          ) : (
+            <p className="rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
+              Publicações do tipo dúvida ficam somente em texto, para manter o foco na pergunta.
+            </p>
+          )}
 
           <div className="space-y-1.5">
             <Label htmlFor="tags">Tags separadas por vírgula</Label>

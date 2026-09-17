@@ -30,6 +30,17 @@ export const Route = createFileRoute("/_authenticated/meu-espaco")({
 const BIO_MAX_LENGTH = 160;
 const ABOUT_ME_MAX_LENGTH = 500;
 
+function SectionHeading({ n, title }: { n: number; title: string }) {
+  return (
+    <h2 className="mb-1 flex items-center gap-3 border-b border-border pb-3 text-lg font-semibold">
+      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-warm text-sm font-bold text-primary-foreground shadow-glow">
+        {n}
+      </span>
+      {title}
+    </h2>
+  );
+}
+
 function MySpacePage() {
   const { user } = useSession();
   const { data: profile } = useProfile(user);
@@ -178,7 +189,7 @@ function MySpacePage() {
         <div className="space-y-6">
           {/* 1. Identidade */}
           <section className="surface-card space-y-4 p-6">
-            <h2 className="text-lg font-semibold border-b pb-2">1. Identidade</h2>
+            <SectionHeading n={1} title="Identidade" />
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 mb-4">
               <div className="space-y-1.5">
@@ -217,7 +228,7 @@ function MySpacePage() {
 
           {/* 2. Apresentação */}
           <section className="surface-card space-y-4 p-6">
-            <h2 className="text-lg font-semibold border-b pb-2">2. Apresentação</h2>
+            <SectionHeading n={2} title="Apresentação" />
             <div className="space-y-1.5">
               <div className="flex justify-between">
                 <Label htmlFor="bio">Resumo (Bio)</Label>
@@ -255,7 +266,7 @@ function MySpacePage() {
 
           {/* 3. Informações Pessoais */}
           <section className="surface-card space-y-4 p-6">
-            <h2 className="text-lg font-semibold border-b pb-2">3. Informações Pessoais</h2>
+            <SectionHeading n={3} title="Informações Pessoais" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="data_nascimento">Data de Nascimento</Label>
@@ -301,7 +312,7 @@ function MySpacePage() {
 
           {/* 4. Interesses */}
           <section className="surface-card space-y-4 p-6">
-            <h2 className="text-lg font-semibold border-b pb-2">4. Interesses e Objetivos</h2>
+            <SectionHeading n={4} title="Interesses e Objetivos" />
             <p className="text-sm text-muted-foreground mb-4">
               Selecione os temas do seu interesse. Eles ajudam a personalizar seu feed.
             </p>
@@ -325,9 +336,7 @@ function MySpacePage() {
 
           {/* 5. Privacidade */}
           <section className="surface-card space-y-4 p-6">
-            <h2 className="text-lg font-semibold border-b pb-2">
-              5. Privacidade do Perfil Público
-            </h2>
+            <SectionHeading n={5} title="Privacidade do Perfil Público" />
             <p className="text-sm text-muted-foreground mb-4">
               Controle o que outros membros da comunidade podem ver no seu perfil. Suas preferências
               são garantidas pelo banco de dados.
@@ -420,33 +429,27 @@ function MySpacePage() {
           <section className="surface-card space-y-3 p-6">
             <h2 className="text-lg font-semibold">Atalhos</h2>
             <ul className="space-y-2 text-sm">
-              <li>
-                <Link to="/diario" className="underline underline-offset-2">
-                  Diário de cuidado
-                </Link>
-              </li>
-              <li>
-                <Link to="/experiencia-protegida" className="underline underline-offset-2">
-                  Experiência protegida
-                </Link>
-              </li>
-              <li>
-                <Link to="/consultas" className="underline underline-offset-2">
-                  Minhas consultas
-                </Link>
-              </li>
-              <li>
-                <Link to="/painel-profissional" className="underline underline-offset-2">
-                  {roles?.includes("verified_professional")
+              {[
+                { to: "/diario", label: "Diário de cuidado" },
+                { to: "/experiencia-protegida", label: "Experiência protegida" },
+                { to: "/consultas", label: "Minhas consultas" },
+                {
+                  to: "/painel-profissional",
+                  label: roles?.includes("verified_professional")
                     ? "Painel profissional"
-                    : "Sou profissional de saúde"}
-                </Link>
-              </li>
-              <li>
-                <Link to="/privacidade" className="underline underline-offset-2">
-                  Privacidade e dados
-                </Link>
-              </li>
+                    : "Sou profissional de saúde",
+                },
+                { to: "/privacidade", label: "Privacidade e dados" },
+              ].map((item) => (
+                <li key={item.to}>
+                  <Link
+                    to={item.to}
+                    className="card-pop flex items-center justify-between rounded-lg border border-border px-3 py-2 font-medium transition-all duration-200 hover:border-primary/40 hover:text-primary"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </section>
 

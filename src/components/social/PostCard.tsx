@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { Heart, MessageCircle } from "lucide-react";
 import { POST_TYPE_LABEL, POST_TYPE_BADGE_CLASS, POST_TYPE_ACCENT_CLASS } from "@/lib/constants";
 import { VerifiedBadge } from "@/components/common/SafetyNote";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/hooks/useSession";
 import { cn } from "@/lib/utils";
 
 export type FeedPost = {
@@ -21,6 +25,7 @@ export type FeedPost = {
   imageUrl?: string | null;
   reactions?: number;
   comments?: number;
+  hasReacted?: boolean;
 };
 
 function AuthorAvatar({
@@ -42,10 +47,42 @@ function AuthorAvatar({
 }
 
 export function PostCard({ post }: { post: FeedPost }) {
+  const { user } = useSession();
   const author = post.is_anonymous ? "Membro anônimo" : (post.authorName ?? "Membro");
   const showAvatarLink = !post.is_anonymous && post.authorId;
   const accent = POST_TYPE_ACCENT_CLASS[post.post_type] ?? "from-primary to-primary/60";
   const badgeClass = POST_TYPE_BADGE_CLASS[post.post_type] ?? "bg-secondary text-secondary-foreground";
+  const showImage = post.post_type !== "duvida" && !!post.imageUrl;
+
+  const [liked, setLiked] = useState(!!post.hasReacted);
+  const [count, setCount] = useState(post.reactions ?? 0);
+  const [pending, setPending] = useState(false);
+
+  async function toggleLike() {
+    if (!user) {
+      toast.error("Entre para curtir publicações.");
+      return;
+    }
+    if (pending) return;
+    setPending(true);
+    const nextLiked = !liked;
+    setLiked(nextLiked);
+    setCount((c) => Math.max(0, c + (nextLiked ? 1 : -1)));
+
+    const { error } = nextLiked
+      ? await supabase.from("reactions").insert({ post_id: post.id, user_id: user.id, kind: "support" })
+      : await supabase
+          .from("reactions")
+          .delete()
+          .match({ post_id: post.id, user_id: user.id, kind: "support" });
+
+    if (error) {
+      setLiked(!nextLiked);
+      setCount((c) => Math.max(0, c + (nextLiked ? -1 : 1)));
+      toast.error("Não foi possível registrar sua curtida agora.");
+    }
+    setPending(false);
+  }
 
   return (
     <article className="surface-card card-pop relative space-y-3 overflow-hidden p-5 pt-6">
@@ -99,14 +136,14 @@ export function PostCard({ post }: { post: FeedPost }) {
         {post.body.length > 420 ? `${post.body.slice(0, 420)}…` : post.body}
       </p>
 
-      {post.imageUrl ? (
+      {showImage ? (
         <Link
           to="/publicacoes/$id"
           params={{ id: post.id }}
           className="block overflow-hidden rounded-xl border border-border bg-muted"
         >
           <img
-            src={post.imageUrl}
+            src={post.imageUrl ?? undefined}
             alt=""
             loading="lazy"
             className="max-h-[480px] w-full object-cover transition-transform hover:scale-[1.02]"
@@ -127,23 +164,28 @@ export function PostCard({ post }: { post: FeedPost }) {
         </ul>
       ) : null}
 
-      <div className="flex items-center gap-4 border-t border-border pt-3 text-xs text-muted-foreground">
-        <span
+      <div className="flex items-center gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
+        <button
+          type="button"
+          onClick={() => void toggleLike()}
+          disabled={pending}
+          aria-pressed={liked}
+          aria-label={liked ? "Remover curtida" : "Curtir publicação"}
           className={cn(
-            "inline-flex items-center gap-1.5 font-medium",
-            (post.reactions ?? 0) > 0 && "text-destructive",
+            "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold transition-all hover:scale-105 hover:bg-destructive/10 active:scale-95 disabled:opacity-60",
+            liked ? "text-destructive" : "text-muted-foreground",
           )}
         >
           <Heart
-            className={cn("size-4", (post.reactions ?? 0) > 0 && "fill-destructive")}
+            className={cn("size-4 transition-transform", liked && "scale-110 fill-destructive")}
             aria-hidden="true"
-          />{" "}
-          {post.reactions ?? 0}
-        </span>
+          />
+          {count}
+        </button>
         <Link
           to="/publicacoes/$id"
           params={{ id: post.id }}
-          className="inline-flex items-center gap-1.5 font-medium transition-colors hover:text-primary"
+          className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-semibold transition-all hover:scale-105 hover:bg-primary/10 hover:text-primary"
         >
           <MessageCircle className="size-4" aria-hidden="true" /> {post.comments ?? 0} comentários
         </Link>

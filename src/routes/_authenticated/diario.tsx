@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { NotebookPen } from "lucide-react";
+import { NotebookPen, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { CardSkeletonList, EmptyState } from "@/components/common/states";
 import { SafetyNote } from "@/components/common/SafetyNote";
@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/diario")({
   head: () => ({
@@ -32,6 +33,15 @@ export const Route = createFileRoute("/_authenticated/diario")({
 });
 
 const moods = ["tranquilo", "cansado", "ansioso", "animado", "triste", "neutro"];
+
+const moodClass: Record<string, string> = {
+  tranquilo: "bg-primary/15 text-primary",
+  cansado: "bg-secondary text-secondary-foreground",
+  ansioso: "bg-destructive/15 text-destructive",
+  animado: "bg-warm/25 text-warm-foreground",
+  triste: "bg-deep/15 text-deep",
+  neutro: "bg-muted text-muted-foreground",
+};
 
 function JournalPage() {
   const { user } = useSession();
@@ -97,19 +107,24 @@ function JournalPage() {
         <section className="surface-card space-y-4 p-6">
           <h2 className="text-lg font-semibold">Registro de hoje</h2>
           <div className="space-y-1.5">
-            <Label htmlFor="humor">Como você está?</Label>
-            <select
-              id="humor"
-              value={mood}
-              onChange={(e) => setMood(e.target.value)}
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
+            <Label>Como você está?</Label>
+            <div className="flex flex-wrap gap-2">
               {moods.map((m) => (
-                <option key={m} value={m}>
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => setMood(m)}
+                  className={cn(
+                    "rounded-full border px-3 py-1.5 text-sm font-medium capitalize transition-all",
+                    mood === m
+                      ? cn("border-transparent shadow-glow", moodClass[m])
+                      : "border-border hover:border-primary/40 hover:text-primary",
+                  )}
+                >
                   {m}
-                </option>
+                </button>
               ))}
-            </select>
+            </div>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="percepcao">Como foi sua relação com a comida hoje?</Label>
@@ -146,19 +161,35 @@ function JournalPage() {
             />
           ) : null}
           <ul className="space-y-3">
-            {entries.data?.map((e) => (
-              <li key={e.id} className="surface-card p-4">
-                <p className="text-xs text-muted-foreground">
-                  {new Date(e.created_at).toLocaleString("pt-BR")} • {e.mood}
-                </p>
-                {e.eating_perception ? <p className="mt-1 text-sm">{e.eating_perception}</p> : null}
+            {entries.data?.map((e, i) => (
+              <li
+                key={e.id}
+                style={{ animationDelay: `${Math.min(i * 60, 300)}ms` }}
+                className="surface-card card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards space-y-2 p-4 duration-500"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-xs font-semibold capitalize",
+                      moodClass[e.mood ?? ""] ?? "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {e.mood}
+                  </span>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(e.created_at).toLocaleString("pt-BR")}
+                  </p>
+                </div>
+                {e.eating_perception ? <p className="text-sm">{e.eating_perception}</p> : null}
                 {e.difficulty ? (
                   <p className="text-sm text-muted-foreground">Difícil: {e.difficulty}</p>
                 ) : null}
                 {e.small_win ? (
-                  <p className="text-sm text-muted-foreground">Conquista: {e.small_win}</p>
+                  <p className="inline-flex items-center gap-1 text-sm font-medium text-primary">
+                    <Sparkles className="size-3.5" aria-hidden="true" /> {e.small_win}
+                  </p>
                 ) : null}
-                {e.note ? <p className="mt-1 whitespace-pre-line text-sm">{e.note}</p> : null}
+                {e.note ? <p className="whitespace-pre-line text-sm">{e.note}</p> : null}
               </li>
             ))}
           </ul>

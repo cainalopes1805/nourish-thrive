@@ -43,9 +43,6 @@ function AuthPage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [pendingConfirm, setPendingConfirm] = useState(false);
-  const [unconfirmedEmail, setUnconfirmedEmail] = useState<string | null>(null);
-  const [resending, setResending] = useState(false);
 
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -59,41 +56,15 @@ function AuthPage() {
       return;
     }
     setErrors({});
-    setUnconfirmedEmail(null);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
     setLoading(false);
     if (error) {
-      if (error.code === "email_not_confirmed") {
-        setUnconfirmedEmail(parsed.data.email);
-        toast.error("Confirme seu e-mail para entrar", {
-          description: "Enviamos um link de confirmação quando você criou a conta.",
-        });
-        return;
-      }
       toast.error("Não foi possível entrar", { description: error.message });
       return;
     }
     toast.success("Bem-vindo(a) de volta");
     navigate({ to: "/feed" });
-  }
-
-  async function handleResendConfirmation() {
-    if (!unconfirmedEmail) return;
-    setResending(true);
-    const { error } = await supabase.auth.resend({
-      type: "signup",
-      email: unconfirmedEmail,
-      options: { emailRedirectTo: window.location.origin },
-    });
-    setResending(false);
-    if (error) {
-      toast.error("Não foi possível reenviar o e-mail", { description: error.message });
-      return;
-    }
-    toast.success("E-mail de confirmação reenviado", {
-      description: "Verifique também a caixa de spam.",
-    });
   }
 
   async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
@@ -114,20 +85,37 @@ function AuthPage() {
       email: parsed.data.email,
       password: parsed.data.password,
       options: {
-        emailRedirectTo: window.location.origin,
         data: { display_name: parsed.data.displayName },
       },
     });
-    setLoading(false);
     if (error) {
+      setLoading(false);
       toast.error("Não foi possível criar a conta", { description: error.message });
       return;
     }
-    if (!data.session) {
-      setPendingConfirm(true);
-      return;
+
+    // Sign-ups are active immediately (no email confirmation step). If the
+    // API didn't hand back a session directly, sign in right away with the
+    // same credentials so the person lands straight in their new account.
+    let session = data.session;
+    if (!session) {
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: parsed.data.email,
+        password: parsed.data.password,
+      });
+      if (signInError) {
+        setLoading(false);
+        toast.error("Conta criada, mas não foi possível entrar automaticamente", {
+          description: "Tente entrar com seu e-mail e senha.",
+        });
+        return;
+      }
+      session = signInData.session;
     }
-    navigate({ to: "/feed" });
+
+    setLoading(false);
+    toast.success("Conta criada com sucesso!");
+    if (session) navigate({ to: "/feed" });
   }
 
   async function handleGoogle() {
@@ -167,118 +155,83 @@ function AuthPage() {
           <div className="lg:hidden">
             <Logo />
           </div>
-          {pendingConfirm ? (
-            <div className="surface-card space-y-3 p-6">
-              <h1 className="text-xl font-bold">Confirme seu e-mail</h1>
-              <p className="text-sm text-muted-foreground">
-                Enviamos um link de confirmação. Depois de confirmar, volte aqui e entre com seu
-                e-mail e senha.
-              </p>
-              <Button variant="outline" onClick={() => setPendingConfirm(false)}>
-                Voltar
-              </Button>
-            </div>
-          ) : (
-            <Tabs defaultValue="entrar">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="entrar">Entrar</TabsTrigger>
-                <TabsTrigger value="criar">Criar conta</TabsTrigger>
-              </TabsList>
+          <Tabs defaultValue="entrar">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="entrar">Entrar</TabsTrigger>
+              <TabsTrigger value="criar">Criar conta</TabsTrigger>
+            </TabsList>
 
-              <TabsContent value="entrar">
-                <form onSubmit={handleSignIn} className="surface-card space-y-4 p-6" noValidate>
-                  <h1 className="text-xl font-bold">Entrar na comunidade</h1>
-                  <div className="space-y-2">
-                    <Label htmlFor="email-in">E-mail</Label>
-                    <Input
-                      id="email-in"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      required
-                      onChange={() => setUnconfirmedEmail(null)}
-                    />
-                    {errors["email"] && (
-                      <p className="text-xs text-destructive">{errors["email"]}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="pass-in">Senha</Label>
-                    <Input
-                      id="pass-in"
-                      name="password"
-                      type="password"
-                      autoComplete="current-password"
-                      required
-                    />
-                    {errors["password"] && (
-                      <p className="text-xs text-destructive">{errors["password"]}</p>
-                    )}
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Entrando..." : "Entrar"}
-                  </Button>
-                  {unconfirmedEmail ? (
-                    <div className="space-y-2 rounded-lg bg-warm/20 p-3 text-xs text-warm-foreground">
-                      <p>
-                        Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada (e o
-                        spam) ou reenvie o link de confirmação.
-                      </p>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        disabled={resending}
-                        onClick={handleResendConfirmation}
-                      >
-                        {resending ? "Reenviando..." : "Reenviar e-mail de confirmação"}
-                      </Button>
-                    </div>
-                  ) : null}
-                </form>
-              </TabsContent>
+            <TabsContent value="entrar">
+              <form onSubmit={handleSignIn} className="surface-card space-y-4 p-6" noValidate>
+                <h1 className="text-xl font-bold">Entrar na comunidade</h1>
+                <div className="space-y-2">
+                  <Label htmlFor="email-in">E-mail</Label>
+                  <Input id="email-in" name="email" type="email" autoComplete="email" required />
+                  {errors["email"] && (
+                    <p className="text-xs text-destructive">{errors["email"]}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="pass-in">Senha</Label>
+                  <Input
+                    id="pass-in"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                  />
+                  {errors["password"] && (
+                    <p className="text-xs text-destructive">{errors["password"]}</p>
+                  )}
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Entrando..." : "Entrar"}
+                </Button>
+              </form>
+            </TabsContent>
 
-              <TabsContent value="criar">
-                <form onSubmit={handleSignUp} className="surface-card space-y-4 p-6" noValidate>
-                  <h1 className="text-xl font-bold">Criar sua conta</h1>
-                  <div className="space-y-2">
-                    <Label htmlFor="name-up">Nome de exibição</Label>
-                    <Input id="name-up" name="displayName" maxLength={60} required />
-                    <p className="text-xs text-muted-foreground">
-                      Pode ser diferente do seu nome legal.
-                    </p>
-                    {errors["displayName"] && (
-                      <p className="text-xs text-destructive">{errors["displayName"]}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email-up">E-mail</Label>
-                    <Input id="email-up" name="email" type="email" autoComplete="email" required />
-                    {errors["email"] && (
-                      <p className="text-xs text-destructive">{errors["email"]}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="pass-up">Senha</Label>
-                    <Input
-                      id="pass-up"
-                      name="password"
-                      type="password"
-                      autoComplete="new-password"
-                      required
-                    />
-                    {errors["password"] && (
-                      <p className="text-xs text-destructive">{errors["password"]}</p>
-                    )}
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Criando..." : "Criar conta"}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-          )}
+            <TabsContent value="criar">
+              <form onSubmit={handleSignUp} className="surface-card space-y-4 p-6" noValidate>
+                <h1 className="text-xl font-bold">Criar sua conta</h1>
+                <p className="text-xs text-muted-foreground">
+                  Sem confirmação por e-mail: ao criar, você já entra direto na sua conta.
+                </p>
+                <div className="space-y-2">
+                  <Label htmlFor="name-up">Nome de exibição</Label>
+                  <Input id="name-up" name="displayName" maxLength={60} required />
+                  <p className="text-xs text-muted-foreground">
+                    Pode ser diferente do seu nome legal.
+                  </p>
+                  {errors["displayName"] && (
+                    <p className="text-xs text-destructive">{errors["displayName"]}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email-up">E-mail</Label>
+                  <Input id="email-up" name="email" type="email" autoComplete="email" required />
+                  {errors["email"] && (
+                    <p className="text-xs text-destructive">{errors["email"]}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="pass-up">Senha</Label>
+                  <Input
+                    id="pass-up"
+                    name="password"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                  />
+                  {errors["password"] && (
+                    <p className="text-xs text-destructive">{errors["password"]}</p>
+                  )}
+                </div>
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Criando..." : "Criar conta e entrar"}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
 
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="h-px flex-1 bg-border" /> ou <span className="h-px flex-1 bg-border" />

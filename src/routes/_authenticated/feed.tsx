@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { ImagePlus, Smile } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { CardSkeletonList, EmptyState, ErrorState } from "@/components/common/states";
 import { SafetyNote } from "@/components/common/SafetyNote";
@@ -36,7 +37,7 @@ function FeedPage() {
   const recoveryMode = profile?.recovery_friendly_mode ?? false;
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["feed", type, recoveryMode],
+    queryKey: ["feed", type, recoveryMode, user?.id],
     queryFn: async () => {
       let q = supabase
         .from("posts")
@@ -61,6 +62,19 @@ function FeedPage() {
         for (const p of profiles ?? []) profilesById.set(p.id, p);
       }
 
+      const likedPostIds = new Set<string>();
+      if (user && rows.length > 0) {
+        const { data: myReactions } = await supabase
+          .from("reactions")
+          .select("post_id")
+          .eq("user_id", user.id)
+          .in(
+            "post_id",
+            rows.map((p) => p.id),
+          );
+        for (const r of myReactions ?? []) likedPostIds.add(r.post_id);
+      }
+
       const posts = rows.map((p: any) => ({
         ...p,
         authorId: p.author_id,
@@ -69,6 +83,7 @@ function FeedPage() {
         imageUrl: p.image_url,
         reactions: p.reactions?.[0]?.count ?? 0,
         comments: p.comments?.[0]?.count ?? 0,
+        hasReacted: likedPostIds.has(p.id),
       })) as (FeedPost & { community_id: string | null })[];
       return recoveryMode ? posts.filter((p) => p.sensitive_topics.length === 0) : posts;
     },
@@ -85,10 +100,28 @@ function FeedPage() {
               : "Conteúdos da comunidade e de profissionais verificados."}
           </p>
         </div>
-        <Button asChild size="sm">
+        <Button asChild size="sm" className="hidden sm:inline-flex">
           <Link to="/criar">Publicar</Link>
         </Button>
       </header>
+
+      <Link
+        to="/criar"
+        className="surface-card card-pop mb-6 flex items-center gap-3 p-4 transition-colors hover:border-primary/40"
+      >
+        <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 font-semibold text-primary">
+          {(profile?.display_name ?? "?").charAt(0).toUpperCase()}
+        </span>
+        <span className="flex-1 rounded-full border border-border bg-muted/60 px-4 py-2.5 text-sm text-muted-foreground">
+          No que você está pensando hoje?
+        </span>
+        <span className="hidden items-center gap-1.5 rounded-full bg-primary/10 px-3 py-2 text-xs font-semibold text-primary sm:flex">
+          <ImagePlus className="size-4" aria-hidden="true" /> Foto
+        </span>
+        <span className="hidden items-center gap-1.5 rounded-full bg-warm/20 px-3 py-2 text-xs font-semibold text-warm-foreground md:flex">
+          <Smile className="size-4" aria-hidden="true" /> Apoio
+        </span>
+      </Link>
 
       <nav aria-label="Filtrar por tipo" className="mb-6 flex flex-wrap gap-2">
         <button

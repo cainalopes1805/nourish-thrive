@@ -37,12 +37,12 @@ function PostPage() {
   const [anonymous, setAnonymous] = useState(false);
 
   const post = useQuery({
-    queryKey: ["post", id],
+    queryKey: ["post", id, user?.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("posts")
         .select(
-          "id, title, body, post_type, tags, sensitive_topics, is_anonymous, is_professional_content, created_at, image_url, author_id",
+          "id, title, body, post_type, tags, sensitive_topics, is_anonymous, is_professional_content, created_at, image_url, author_id, reactions(count), comments(count)",
         )
         .eq("id", id)
         .maybeSingle();
@@ -62,12 +62,26 @@ function PostPage() {
         authorAvatar = profile?.avatar_url;
       }
 
+      let hasReacted = false;
+      if (user) {
+        const { data: reaction } = await supabase
+          .from("reactions")
+          .select("id")
+          .eq("post_id", p.id)
+          .eq("user_id", user.id)
+          .maybeSingle();
+        hasReacted = !!reaction;
+      }
+
       return {
         ...p,
         authorId: p.author_id,
         authorName,
         authorAvatar,
         imageUrl: p.image_url,
+        reactions: p.reactions?.[0]?.count ?? 0,
+        comments: p.comments?.[0]?.count ?? 0,
+        hasReacted,
       } as FeedPost;
     },
   });

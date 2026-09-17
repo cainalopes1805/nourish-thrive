@@ -65,10 +65,16 @@ function HelpPage() {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2">
-        {channels.map((c) => (
-          <article key={c.name} className="surface-card p-5">
-            <h3 className="flex items-center gap-2 font-semibold">
-              <Phone className="size-4 text-deep" aria-hidden="true" />
+        {channels.map((c, i) => (
+          <article
+            key={c.name}
+            style={{ animationDelay: `${i * 60}ms` }}
+            className="surface-card card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards p-5 duration-500"
+          >
+            <h3 className="flex items-center gap-3 font-semibold">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                <Phone className="size-4" aria-hidden="true" />
+              </span>
               {c.name}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">{c.detail}</p>
