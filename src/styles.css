@@ -12,6 +12,7 @@
 
 @theme inline {
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Iowan Old Style", "Baskerville", Georgia, serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -167,6 +168,8 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    background-image: radial-gradient(oklch(0.72 0.09 70 / 12%) 0.75px, transparent 0.75px);
+    background-size: 18px 18px;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -181,6 +184,29 @@
   :focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
+  }
+}
+
+.landing-hero::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  height: 32%;
+  content: "";
+  background: linear-gradient(to bottom, transparent, oklch(0.955 0.02 65 / 50%));
+  pointer-events: none;
+}
+
+.hero-proof-grid {
+  display: grid;
+  gap: 0.25rem;
+}
+
+@media (min-width: 768px) {
+  .hero-proof-grid > div + div {
+    border-left: 1px solid var(--color-border);
   }
 }
 
