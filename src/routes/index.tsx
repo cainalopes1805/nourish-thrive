@@ -45,7 +45,7 @@ function Landing() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("communities")
-        .select("id,slug,name,description,banner_url,avatar_url")
+        .select("id,slug,name,description,topic,banner_url,avatar_url")
         .limit(6);
       if (error) throw error;
       return data;
@@ -167,14 +167,12 @@ function Landing() {
                 className="surface-card group flex flex-col overflow-hidden card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
               >
                 <div className="relative h-28 w-full overflow-hidden bg-gradient-to-br from-primary/20 to-warm/20">
-                  {c.banner_url ? (
-                    <img
-                      src={c.banner_url}
-                      alt=""
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  ) : null}
+                  <img
+                    src={c.banner_url || (c.topic?.toLowerCase().includes("segurança") ? "/images/themes/reading-labels.jpg" : "/images/themes/fresh-ingredients.jpg")}
+                    alt={c.banner_url ? `Capa da comunidade ${c.name}` : "Alimentos frescos em uma mesa"}
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
                 </div>
                 <div className="flex flex-1 flex-col p-5">
                   <div className="-mt-9 mb-2 flex items-center gap-3">

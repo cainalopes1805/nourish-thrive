@@ -160,9 +160,11 @@ function CommunityPage() {
 
       {/* Banner / Cover */}
       <div className="relative w-full h-48 md:h-64 bg-gradient-to-br from-primary/15 to-primary/5 rounded-t-xl overflow-hidden flex items-end">
-        {c.banner_url ? (
-          <img src={c.banner_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        ) : null}
+        <img
+          src={c.banner_url || "/images/themes/fresh-ingredients.jpg"}
+          alt={c.banner_url ? `Capa da comunidade ${c.name}` : "Alimentos frescos em uma mesa"}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
         <div className="absolute inset-0 bg-black/10" />
         {canEditMedia ? (
           <div className="absolute right-4 top-4 z-10">

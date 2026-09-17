@@ -10,6 +10,16 @@ import { CreateCommunityDialog } from "@/components/social/CreateCommunityDialog
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useSession } from "@/hooks/useSession";
+import saudeMentalImg from "@/assets/saude-mental.jpg";
+
+function communityImage(topic: string | null) {
+  const normalizedTopic = topic?.toLowerCase() ?? "";
+  if (normalizedTopic.includes("mental") || normalizedTopic.includes("recupera") || normalizedTopic.includes("relaç")) {
+    return saudeMentalImg;
+  }
+  if (normalizedTopic.includes("segurança") || normalizedTopic.includes("rótul")) return "/images/themes/reading-labels.jpg";
+  return "/images/themes/fresh-ingredients.jpg";
+}
 
 export const Route = createFileRoute("/comunidades")({
   head: () => ({
@@ -102,14 +112,12 @@ function CommunitiesPage() {
               className="surface-card group flex flex-col overflow-hidden card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
             >
               <div className="relative h-24 w-full overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
-                {c.banner_url ? (
-                  <img
-                    src={c.banner_url}
-                    alt=""
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                ) : null}
+                <img
+                  src={c.banner_url || communityImage(c.topic)}
+                  alt={c.banner_url ? `Capa da comunidade ${c.name}` : "Alimentos frescos em uma mesa"}
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
               </div>
               <div className="p-5 flex-1 flex flex-col">
                 <div className="mb-2 flex items-center gap-3">

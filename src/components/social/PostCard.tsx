@@ -1,8 +1,10 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { Heart, MessageCircle } from "lucide-react";
 import { POST_TYPE_LABEL, POST_TYPE_BADGE_CLASS, POST_TYPE_ACCENT_CLASS } from "@/lib/constants";
 import { VerifiedBadge } from "@/components/common/SafetyNote";
 import { cn } from "@/lib/utils";
+import saudeMentalImg from "@/assets/saude-mental.jpg";
 
 export type FeedPost = {
   id: string;
@@ -21,6 +23,28 @@ export type FeedPost = {
   imageUrl?: string | null;
   reactions?: number;
   comments?: number;
+};
+
+const POST_FALLBACK_IMAGES: Record<string, string> = {
+  receita: "/images/recipes/oatmeal.jpg",
+  profissional: "/images/themes/fresh-ingredients.jpg",
+  educativo: "/images/themes/reading-labels.jpg",
+  saude_mental: saudeMentalImg,
+  apoio: saudeMentalImg,
+  experiencia: "/images/themes/fresh-ingredients.jpg",
+  duvida: "/images/themes/reading-labels.jpg",
+  enquete: "/images/themes/fresh-ingredients.jpg",
+};
+
+const POST_FALLBACK_ALT: Record<string, string> = {
+  receita: "Aveia com frutas frescas",
+  profissional: "Ingredientes frescos em uma mesa",
+  educativo: "Pessoa lendo rótulos de alimentos",
+  saude_mental: "Momento de cuidado e acolhimento",
+  apoio: "Momento de cuidado e acolhimento",
+  experiencia: "Ingredientes frescos em uma mesa",
+  duvida: "Pessoa lendo rótulos de alimentos",
+  enquete: "Ingredientes frescos em uma mesa",
 };
 
 function AuthorAvatar({
@@ -42,13 +66,19 @@ function AuthorAvatar({
 }
 
 export function PostCard({ post }: { post: FeedPost }) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const author = post.is_anonymous ? "Membro anônimo" : (post.authorName ?? "Membro");
   const showAvatarLink = !post.is_anonymous && post.authorId;
   const accent = POST_TYPE_ACCENT_CLASS[post.post_type] ?? "from-primary to-primary/60";
   const badgeClass = POST_TYPE_BADGE_CLASS[post.post_type] ?? "bg-secondary text-secondary-foreground";
+  const bodyLimit = 300;
+  const hasLongBody = post.body.length > bodyLimit;
+  const displayedBody = isExpanded || !hasLongBody ? post.body : `${post.body.slice(0, bodyLimit).trimEnd()}…`;
+  const imageUrl = post.imageUrl || POST_FALLBACK_IMAGES[post.post_type];
+  const imageAlt = post.imageUrl ? "Imagem compartilhada na publicação" : POST_FALLBACK_ALT[post.post_type] || "Alimentação e bem-estar";
 
   return (
-    <article className="surface-card card-pop relative space-y-3 overflow-hidden p-5 pt-6">
+    <article className="surface-card relative space-y-3 overflow-hidden p-4 sm:p-5">
       <span className={cn("absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r", accent)} aria-hidden="true" />
       <div className="flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground">
         {showAvatarLink ? (
@@ -95,21 +125,31 @@ export function PostCard({ post }: { post: FeedPost }) {
         </p>
       ) : null}
 
-      <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90">
-        {post.body.length > 420 ? `${post.body.slice(0, 420)}…` : post.body}
-      </p>
+      <div className="text-sm leading-relaxed text-foreground/90">
+        <p className="whitespace-pre-line">{displayedBody}</p>
+        {hasLongBody ? (
+          <button
+            type="button"
+            onClick={() => setIsExpanded((expanded) => !expanded)}
+            className="mt-1 font-semibold text-primary hover:underline"
+            aria-expanded={isExpanded}
+          >
+            {isExpanded ? "Ver menos" : "Ver mais"}
+          </button>
+        ) : null}
+      </div>
 
-      {post.imageUrl ? (
+      {imageUrl ? (
         <Link
           to="/publicacoes/$id"
           params={{ id: post.id }}
           className="block overflow-hidden rounded-xl border border-border bg-muted"
         >
           <img
-            src={post.imageUrl}
-            alt=""
+            src={imageUrl}
+            alt={imageAlt}
             loading="lazy"
-            className="max-h-[480px] w-full object-cover transition-transform hover:scale-[1.02]"
+            className="h-52 w-full object-cover transition-transform hover:scale-[1.02] sm:h-72"
           />
         </Link>
       ) : null}
