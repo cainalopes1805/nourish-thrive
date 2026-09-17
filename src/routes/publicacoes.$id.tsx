@@ -42,12 +42,33 @@ function PostPage() {
       const { data, error } = await supabase
         .from("posts")
         .select(
-          "id, title, body, post_type, tags, sensitive_topics, is_anonymous, is_professional_content, created_at",
+          "id, title, body, post_type, tags, sensitive_topics, is_anonymous, is_professional_content, created_at, image_url, author_id",
         )
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
-      return data as FeedPost | null;
+      if (!data) return null;
+      const p = data as any;
+
+      let authorName: string | undefined;
+      let authorAvatar: string | null | undefined;
+      if (!p.is_anonymous) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("display_name, avatar_url")
+          .eq("id", p.author_id)
+          .maybeSingle();
+        authorName = profile?.display_name;
+        authorAvatar = profile?.avatar_url;
+      }
+
+      return {
+        ...p,
+        authorId: p.author_id,
+        authorName,
+        authorAvatar,
+        imageUrl: p.image_url,
+      } as FeedPost;
     },
   });
 
@@ -61,7 +82,23 @@ function PostPage() {
         .eq("status", "published")
         .order("created_at");
       if (error) throw error;
-      return data ?? [];
+      const rows = data ?? [];
+
+      const authorIds = Array.from(new Set(rows.filter((c) => !c.is_anonymous).map((c) => c.author_id)));
+      const profilesById = new Map<string, { display_name: string; avatar_url: string | null }>();
+      if (authorIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, display_name, avatar_url")
+          .in("id", authorIds);
+        for (const p of profiles ?? []) profilesById.set(p.id, p);
+      }
+
+      return rows.map((c) => ({
+        ...c,
+        authorName: c.is_anonymous ? null : profilesById.get(c.author_id)?.display_name,
+        authorAvatar: c.is_anonymous ? null : profilesById.get(c.author_id)?.avatar_url,
+      }));
     },
   });
 
@@ -150,15 +187,27 @@ function PostPage() {
           ) : null}
 
           <ul className="space-y-3">
-            {comments.data?.map((c) => (
-              <li key={c.id} className="surface-card p-4">
-                <p className="text-xs text-muted-foreground">
-                  {c.is_anonymous ? "Membro anônimo" : "Membro da comunidade"} •{" "}
-                  {new Date(c.created_at).toLocaleDateString("pt-BR")}
-                </p>
-                <p className="mt-1 whitespace-pre-line text-sm">{c.body}</p>
-              </li>
-            ))}
+            {comments.data?.map((c) => {
+              const name = c.is_anonymous ? "Membro anônimo" : (c.authorName ?? "Membro");
+              return (
+                <li key={c.id} className="surface-card flex gap-3 p-4">
+                  <div className="size-8 shrink-0 overflow-hidden rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
+                    {c.authorAvatar ? (
+                      <img src={c.authorAvatar} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      name.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-muted-foreground">
+                      <span className="font-medium text-foreground">{name}</span> •{" "}
+                      {new Date(c.created_at).toLocaleDateString("pt-BR")}
+                    </p>
+                    <p className="mt-1 whitespace-pre-line text-sm">{c.body}</p>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </section>
 

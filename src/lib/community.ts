@@ -12,7 +12,13 @@ export function slugify(text: string) {
     .replace(/--+/g, "-");
 }
 
-export async function createCommunity(data: { name: string; description: string; topic: string }) {
+export async function createCommunity(data: {
+  name: string;
+  description: string;
+  topic: string;
+  bannerUrl?: string | null;
+  avatarUrl?: string | null;
+}) {
   const { data: userResp } = await supabase.auth.getUser();
   if (!userResp.user) throw new Error("Usuário não autenticado");
   const userId = userResp.user.id;
@@ -27,6 +33,9 @@ export async function createCommunity(data: { name: string; description: string;
       topic: data.topic,
       slug,
       is_sensitive: false,
+      banner_url: data.bannerUrl || null,
+      avatar_url: data.avatarUrl || null,
+      created_by: userId,
     })
     .select()
     .single();

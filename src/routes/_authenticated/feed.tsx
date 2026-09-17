@@ -41,7 +41,7 @@ function FeedPage() {
       let q = supabase
         .from("posts")
         .select(
-          "id, title, body, post_type, tags, sensitive_topics, is_anonymous, is_professional_content, created_at, community_id, reactions(count), comments(count)",
+          "id, title, body, post_type, tags, sensitive_topics, is_anonymous, is_professional_content, created_at, community_id, image_url, author_id, reactions(count), comments(count)",
         )
         .eq("status", "published")
         .order("created_at", { ascending: false })
@@ -49,8 +49,24 @@ function FeedPage() {
       if (type) q = q.eq("post_type", type);
       const { data, error } = await q;
       if (error) throw error;
-      const posts = (data ?? []).map((p) => ({
+      const rows = data ?? [];
+
+      const authorIds = Array.from(new Set(rows.map((p) => p.author_id)));
+      const profilesById = new Map<string, { display_name: string; avatar_url: string | null }>();
+      if (authorIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, display_name, avatar_url")
+          .in("id", authorIds);
+        for (const p of profiles ?? []) profilesById.set(p.id, p);
+      }
+
+      const posts = rows.map((p: any) => ({
         ...p,
+        authorId: p.author_id,
+        authorName: profilesById.get(p.author_id)?.display_name,
+        authorAvatar: profilesById.get(p.author_id)?.avatar_url,
+        imageUrl: p.image_url,
         reactions: p.reactions?.[0]?.count ?? 0,
         comments: p.comments?.[0]?.count ?? 0,
       })) as (FeedPost & { community_id: string | null })[];

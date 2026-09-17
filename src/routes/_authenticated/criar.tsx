@@ -12,6 +12,7 @@ import { POST_TYPES, SENSITIVE_TOPICS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useSession";
 import { useRoles } from "@/hooks/useSession";
+import { ImageUploader } from "@/components/social/ImageUploader";
 
 export const Route = createFileRoute("/_authenticated/criar")({
   head: () => ({
@@ -41,6 +42,7 @@ function CreatePostPage() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [tags, setTags] = useState("");
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [anonymous, setAnonymous] = useState(false);
   const [topics, setTopics] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
@@ -87,6 +89,7 @@ function CreatePostPage() {
         is_anonymous: anonymous,
         is_professional_content: postType === "profissional" && !!isPro,
         sensitive_topics: topics,
+        image_url: imageUrl,
         status: "published",
       })
       .select("id")
@@ -158,6 +161,17 @@ function CreatePostPage() {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Conte com suas palavras…"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label>Imagem (opcional)</Label>
+            <ImageUploader
+              type="post"
+              currentUrl={imageUrl}
+              onUploadComplete={setImageUrl}
+              onRemove={() => setImageUrl(null)}
+              className="h-48 w-full"
             />
           </div>
 

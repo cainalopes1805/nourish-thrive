@@ -44,7 +44,25 @@ function MessagesPage() {
         .select("id, user_a, user_b, is_clinical, created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return data ?? [];
+      const rows = data ?? [];
+
+      const otherIds = Array.from(
+        new Set(rows.map((c) => (c.user_a === user!.id ? c.user_b : c.user_a))),
+      );
+      const profilesById = new Map<string, { display_name: string; avatar_url: string | null }>();
+      if (otherIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, display_name, avatar_url")
+          .in("id", otherIds);
+        for (const p of profiles ?? []) profilesById.set(p.id, p);
+      }
+
+      return rows.map((c) => {
+        const otherId = c.user_a === user!.id ? c.user_b : c.user_a;
+        const other = profilesById.get(otherId);
+        return { ...c, otherName: other?.display_name ?? "Membro", otherAvatar: other?.avatar_url };
+      });
     },
   });
 
@@ -108,13 +126,23 @@ function MessagesPage() {
                 <button
                   onClick={() => setActiveId(c.id)}
                   className={cn(
-                    "w-full rounded-lg px-3 py-3 text-left text-sm hover:bg-secondary",
+                    "flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left text-sm hover:bg-secondary",
                     currentId === c.id && "bg-secondary font-semibold text-deep",
                   )}
                 >
-                  {c.is_clinical ? "Conversa clínica" : "Conversa da comunidade"}
-                  <span className="block text-xs font-normal text-muted-foreground">
-                    desde {new Date(c.created_at).toLocaleDateString("pt-BR")}
+                  <span className="size-9 shrink-0 overflow-hidden rounded-full bg-primary/10 flex items-center justify-center font-semibold text-primary">
+                    {c.otherAvatar ? (
+                      <img src={c.otherAvatar} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      c.otherName.charAt(0).toUpperCase()
+                    )}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate">{c.otherName}</span>
+                    <span className="block text-xs font-normal text-muted-foreground">
+                      {c.is_clinical ? "Conversa clínica" : "Conversa"} • desde{" "}
+                      {new Date(c.created_at).toLocaleDateString("pt-BR")}
+                    </span>
                   </span>
                 </button>
               </li>

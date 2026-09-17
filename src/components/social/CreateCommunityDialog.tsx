@@ -14,12 +14,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { INTERESTS } from "@/lib/constants";
 import { createCommunity } from "@/lib/community";
+import { ImageUploader } from "@/components/social/ImageUploader";
 
 export function CreateCommunityDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [topic, setTopic] = useState("");
+  const [bannerUrl, setBannerUrl] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -33,7 +36,7 @@ export function CreateCommunityDialog({ children }: { children: React.ReactNode 
         throw new Error("Preencha todos os campos obrigatórios.");
       }
 
-      return createCommunity({ name: n, description: d, topic: t });
+      return createCommunity({ name: n, description: d, topic: t, bannerUrl, avatarUrl });
     },
     onSuccess: () => {
       toast.success("Comunidade criada com sucesso!");
@@ -41,6 +44,8 @@ export function CreateCommunityDialog({ children }: { children: React.ReactNode 
       setName("");
       setDescription("");
       setTopic("");
+      setBannerUrl(null);
+      setAvatarUrl(null);
       queryClient.invalidateQueries({ queryKey: ["communities"] });
     },
     onError: (error: any) => {
@@ -101,13 +106,31 @@ export function CreateCommunityDialog({ children }: { children: React.ReactNode 
               ))}
             </select>
           </div>
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">Capa da comunidade</label>
-            <p className="text-xs text-muted-foreground">
-              No momento, as capas são atribuídas automaticamente. Uma opção de upload será
-              disponibilizada em breve.
-            </p>
+          <div className="grid grid-cols-[1fr_auto] gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Capa da comunidade</label>
+              <ImageUploader
+                type="community-banner"
+                currentUrl={bannerUrl}
+                onUploadComplete={setBannerUrl}
+                onRemove={() => setBannerUrl(null)}
+                className="h-24 w-full"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Ícone</label>
+              <ImageUploader
+                type="community-avatar"
+                currentUrl={avatarUrl}
+                onUploadComplete={setAvatarUrl}
+                onRemove={() => setAvatarUrl(null)}
+                className="h-24 w-24 rounded-full"
+              />
+            </div>
           </div>
+          <p className="text-xs text-muted-foreground -mt-2">
+            Sem imagem, usamos um degradê de fundo automático.
+          </p>
         </div>
         <div className="flex justify-end">
           <Button

@@ -42,9 +42,9 @@ function ProfessionalsPage() {
       const { data, error } = await supabase
         .from("professional_profiles")
         .select(
-          "id, name, profession, specialties, bio, location, teleconsultation_enabled, price_min, price_max, rating, verified_status, is_demo, languages",
+          "id, name, profession, specialties, bio, location, teleconsultation_enabled, price_min, price_max, rating, verified_status, is_demo, languages, profile_photo",
         )
-        .eq("verified_status", "verified")
+        .eq("verified_status", "approved")
         .order("name");
       if (error) throw error;
       return data ?? [];
@@ -128,29 +128,40 @@ function ProfessionalsPage() {
             key={p.id}
             to="/profissionais/$id"
             params={{ id: p.id }}
-            className="surface-card block p-5 transition-shadow hover:shadow-lift"
+            className="surface-card flex gap-4 p-5 transition-shadow hover:shadow-lift"
           >
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="font-semibold">{p.name}</h2>
-              <VerifiedBadge />
-              {p.is_demo ? <DemoBadge /> : null}
+            <div className="size-16 shrink-0 overflow-hidden rounded-full bg-primary/10">
+              {p.profile_photo ? (
+                <img src={p.profile_photo} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center text-xl font-bold text-primary">
+                  {p.name.charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">{p.profession}</p>
-            <p className="mt-2 line-clamp-3 text-sm text-foreground/85">{p.bio}</p>
-            <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
-              {p.location ? (
-                <span className="inline-flex items-center gap-1">
-                  <MapPin className="size-3.5" aria-hidden="true" />
-                  {p.location}
-                </span>
-              ) : null}
-              {p.teleconsultation_enabled ? (
-                <span className="inline-flex items-center gap-1">
-                  <Video className="size-3.5" aria-hidden="true" />
-                  Teleconsulta
-                </span>
-              ) : null}
-              {p.price_min ? <span>A partir de R$ {Number(p.price_min).toFixed(0)}</span> : null}
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h2 className="font-semibold">{p.name}</h2>
+                <VerifiedBadge />
+                {p.is_demo ? <DemoBadge /> : null}
+              </div>
+              <p className="mt-1 text-sm text-muted-foreground">{p.profession}</p>
+              <p className="mt-2 line-clamp-3 text-sm text-foreground/85">{p.bio}</p>
+              <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted-foreground">
+                {p.location ? (
+                  <span className="inline-flex items-center gap-1">
+                    <MapPin className="size-3.5" aria-hidden="true" />
+                    {p.location}
+                  </span>
+                ) : null}
+                {p.teleconsultation_enabled ? (
+                  <span className="inline-flex items-center gap-1">
+                    <Video className="size-3.5" aria-hidden="true" />
+                    Teleconsulta
+                  </span>
+                ) : null}
+                {p.price_min ? <span>A partir de R$ {Number(p.price_min).toFixed(0)}</span> : null}
+              </div>
             </div>
           </Link>
         ))}

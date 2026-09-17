@@ -82,7 +82,13 @@ function ArticlePage() {
         / <span className="text-foreground">{a.category}</span>
       </nav>
 
-      <article className="surface-card space-y-5 p-6 md:p-8">
+      <article className="surface-card space-y-5 overflow-hidden p-0">
+        {a.cover_url ? (
+          <div className="h-48 w-full overflow-hidden bg-muted md:h-64">
+            <img src={a.cover_url} alt="" className="h-full w-full object-cover" />
+          </div>
+        ) : null}
+        <div className="space-y-5 p-6 md:p-8">
         <header className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-deep">
             {a.content_type} • {a.reading_minutes} min • leitura {a.reading_level}
@@ -143,6 +149,7 @@ function ArticlePage() {
         </section>
 
         <SafetyNote />
+        </div>
       </article>
     </AppShell>
   );

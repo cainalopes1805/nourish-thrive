@@ -43,7 +43,7 @@ function LearnPage() {
       let q = supabase
         .from("articles")
         .select(
-          "id, slug, title, summary, category, content_type, reading_minutes, reading_level, author_name, badge, published_at",
+          "id, slug, title, summary, category, content_type, reading_minutes, reading_level, author_name, badge, published_at, cover_url",
         )
         .order("published_at", { ascending: false });
       if (categoria) q = q.eq("category", categoria);
@@ -103,17 +103,24 @@ function LearnPage() {
             key={a.id}
             to="/aprender/$slug"
             params={{ slug: a.slug }}
-            className="surface-card block p-5 transition-shadow hover:shadow-lift"
+            className="surface-card flex flex-col overflow-hidden transition-shadow hover:shadow-lift"
           >
-            <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
-              <BookOpen className="size-4" aria-hidden="true" />
-              <span>{a.category}</span>
-              <span aria-hidden="true">•</span>
-              <span>{a.reading_minutes} min</span>
+            {a.cover_url ? (
+              <div className="h-36 w-full overflow-hidden bg-muted">
+                <img src={a.cover_url} alt="" loading="lazy" className="h-full w-full object-cover" />
+              </div>
+            ) : null}
+            <div className="p-5">
+              <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+                <BookOpen className="size-4" aria-hidden="true" />
+                <span>{a.category}</span>
+                <span aria-hidden="true">•</span>
+                <span>{a.reading_minutes} min</span>
+              </div>
+              <h2 className="font-semibold leading-snug">{a.title}</h2>
+              <p className="mt-2 text-sm text-muted-foreground">{a.summary}</p>
+              <p className="mt-3 text-xs text-muted-foreground">Por {a.author_name}</p>
             </div>
-            <h2 className="font-semibold leading-snug">{a.title}</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{a.summary}</p>
-            <p className="mt-3 text-xs text-muted-foreground">Por {a.author_name}</p>
           </Link>
         ))}
       </div>

@@ -137,28 +137,41 @@ function ProfessionalPage() {
       <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
         <div className="space-y-6">
           <header className="surface-card space-y-3 p-6">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-extrabold tracking-tight">{p.name}</h1>
-              <VerifiedBadge />
-              {p.is_demo ? <DemoBadge /> : null}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {p.profession}
-              {p.council && p.registration_number
-                ? ` • ${p.council} ${p.registration_number}${p.state ? `/${p.state}` : ""}`
-                : ""}
-            </p>
-            <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-              {p.location ? (
-                <span className="inline-flex items-center gap-1">
-                  <MapPin className="size-3.5" aria-hidden="true" /> {p.location}
-                </span>
-              ) : null}
-              {p.teleconsultation_enabled ? (
-                <span className="inline-flex items-center gap-1">
-                  <Video className="size-3.5" aria-hidden="true" /> Teleconsulta
-                </span>
-              ) : null}
+            <div className="flex items-start gap-4">
+              <div className="size-20 shrink-0 overflow-hidden rounded-full bg-primary/10">
+                {p.profile_photo ? (
+                  <img src={p.profile_photo} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-primary">
+                    {p.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-2xl font-extrabold tracking-tight">{p.name}</h1>
+                  <VerifiedBadge />
+                  {p.is_demo ? <DemoBadge /> : null}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {p.profession}
+                  {p.council && p.registration_number
+                    ? ` • ${p.council} ${p.registration_number}${p.state ? `/${p.state}` : ""}`
+                    : ""}
+                </p>
+                <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                  {p.location ? (
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="size-3.5" aria-hidden="true" /> {p.location}
+                    </span>
+                  ) : null}
+                  {p.teleconsultation_enabled ? (
+                    <span className="inline-flex items-center gap-1">
+                      <Video className="size-3.5" aria-hidden="true" /> Teleconsulta
+                    </span>
+                  ) : null}
+                </div>
+              </div>
             </div>
             <p className="text-sm leading-relaxed text-foreground/90">{p.bio}</p>
             {p.approach ? (

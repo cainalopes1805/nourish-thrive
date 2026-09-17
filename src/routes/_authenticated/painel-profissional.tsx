@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { PROFESSIONS } from "@/lib/constants";
 import { supabase } from "@/integrations/supabase/client";
 import { useRoles, useSession } from "@/hooks/useSession";
+import { ImageUploader } from "@/components/social/ImageUploader";
 
 export const Route = createFileRoute("/_authenticated/painel-profissional")({
   head: () => ({
@@ -69,13 +70,27 @@ function ProPanelPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("professional_profiles")
-        .select("id, name, profession, verified_status")
+        .select("id, name, profession, verified_status, profile_photo")
         .eq("user_id", user!.id)
         .maybeSingle();
       if (error) throw error;
       return data;
     },
   });
+
+  async function updatePhoto(url: string | null) {
+    if (!myProfile.data?.id) return;
+    const { error } = await supabase
+      .from("professional_profiles")
+      .update({ profile_photo: url })
+      .eq("id", myProfile.data.id);
+    if (error) {
+      toast.error("Não foi possível salvar a foto agora.");
+      return;
+    }
+    toast.success("Foto de perfil profissional atualizada.");
+    void queryClient.invalidateQueries({ queryKey: ["my-professional-profile", user?.id] });
+  }
 
   const appointments = useQuery({
     queryKey: ["pro-appointments", myProfile.data?.id],
@@ -205,6 +220,23 @@ function ProPanelPage() {
           <SafetyNote>
             Só perfis com registro verificado podem publicar conteúdo profissional e atender.
           </SafetyNote>
+        </section>
+      ) : null}
+
+      {isPro && myProfile.data ? (
+        <section className="surface-card mb-6 space-y-4 p-6">
+          <h2 className="text-lg font-semibold">Foto de perfil profissional</h2>
+          <p className="text-sm text-muted-foreground">
+            Exibida na busca de profissionais e no seu perfil público.
+          </p>
+          <ImageUploader
+            type="avatar"
+            label="foto profissional"
+            currentUrl={myProfile.data.profile_photo}
+            onUploadComplete={updatePhoto}
+            onRemove={() => updatePhoto(null)}
+            className="h-32 w-32 rounded-full"
+          />
         </section>
       ) : null}
 

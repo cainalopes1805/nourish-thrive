@@ -41,7 +41,9 @@ function CommunitiesPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("communities")
-        .select("id, slug, name, description, topic, is_sensitive, community_members(count)")
+        .select(
+          "id, slug, name, description, topic, is_sensitive, banner_url, avatar_url, community_members(count)",
+        )
         .order("name");
       if (error) throw error;
       return data ?? [];
@@ -96,14 +98,30 @@ function CommunitiesPage() {
               key={c.id}
               to="/comunidades/$slug"
               params={{ slug: c.slug }}
-              className="surface-card flex flex-col overflow-hidden transition-shadow hover:shadow-lift"
+              className="surface-card group flex flex-col overflow-hidden transition-shadow hover:shadow-lift"
             >
-              <div className="h-24 w-full bg-gradient-to-br from-primary/10 to-primary/5 relative">
-                {/* Fallback Capa */}
+              <div className="relative h-24 w-full overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
+                {c.banner_url ? (
+                  <img
+                    src={c.banner_url}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                ) : null}
               </div>
               <div className="p-5 flex-1 flex flex-col">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <h2 className="font-semibold">{c.name}</h2>
+                <div className="mb-2 flex items-center gap-3">
+                  <div className="-mt-9 size-12 shrink-0 overflow-hidden rounded-full border-4 border-background bg-muted shadow-sm">
+                    {c.avatar_url ? (
+                      <img src={c.avatar_url} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-primary/10 font-bold text-primary">
+                        {c.name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <h2 className="flex-1 font-semibold">{c.name}</h2>
                   <Users className="size-4 text-deep shrink-0" aria-hidden="true" />
                 </div>
                 <p className="text-sm text-muted-foreground line-clamp-2 flex-1">{c.description}</p>

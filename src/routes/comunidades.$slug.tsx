@@ -1,14 +1,24 @@
+import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Users, Info, MessageSquare, Utensils, Award } from "lucide-react";
+import { Users, Info, MessageSquare, Utensils, Award, Pencil } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { CardSkeletonList, EmptyState, ErrorState } from "@/components/common/states";
 import { SafetyNote } from "@/components/common/SafetyNote";
 import { Button } from "@/components/ui/button";
 import { PostCard, type FeedPost } from "@/components/social/PostCard";
+import { ImageUploader } from "@/components/social/ImageUploader";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession } from "@/hooks/useSession";
+import { useSession, useRoles } from "@/hooks/useSession";
 import { toggleCommunityMembership } from "@/lib/community";
 import { toast } from "sonner";
 
@@ -25,6 +35,7 @@ export const Route = createFileRoute("/comunidades/$slug")({
 function CommunityPage() {
   const { slug } = Route.useParams();
   const { user } = useSession();
+  const { data: roles } = useRoles(user);
   const queryClient = useQueryClient();
 
   const community = useQuery({
@@ -32,7 +43,7 @@ function CommunityPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("communities")
-        .select("id, slug, name, description, topic, is_sensitive")
+        .select("id, slug, name, description, topic, is_sensitive, banner_url, avatar_url, created_by")
         .eq("slug", slug)
         .maybeSingle();
       if (error) throw error;
@@ -41,6 +52,8 @@ function CommunityPage() {
   });
 
   const c = community.data;
+  const isStaff = roles?.some((r) => r === "moderator" || r === "admin") ?? false;
+  const canEditMedia = !!user && (c?.created_by === user.id || isStaff);
 
   const members = useQuery({
     queryKey: ["community-members", c?.id],
@@ -48,10 +61,22 @@ function CommunityPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("community_members")
-        .select("id, user_id, profiles(id, display_name, avatar_url)")
+        .select("id, user_id")
         .eq("community_id", c!.id);
       if (error) throw error;
-      return data ?? [];
+      const rows = data ?? [];
+
+      const userIds = Array.from(new Set(rows.map((m) => m.user_id)));
+      const profilesById = new Map<string, { id: string; display_name: string; avatar_url: string | null }>();
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, display_name, avatar_url")
+          .in("id", userIds);
+        for (const p of profiles ?? []) profilesById.set(p.id, p);
+      }
+
+      return rows.map((m) => ({ ...m, profiles: profilesById.get(m.user_id) ?? null }));
     },
   });
 
@@ -62,18 +87,31 @@ function CommunityPage() {
       const { data, error } = await supabase
         .from("posts")
         .select(
-          "id, title, body, post_type, tags, sensitive_topics, is_anonymous, is_professional_content, created_at, profiles(display_name)",
+          "id, title, body, post_type, tags, sensitive_topics, is_anonymous, is_professional_content, created_at, image_url, author_id",
         )
         .eq("community_id", c!.id)
         .eq("status", "published")
         .order("created_at", { ascending: false })
         .limit(50);
       if (error) throw error;
+      const rows = data ?? [];
 
-      // Map authorName
-      return (data ?? []).map((p: any) => ({
+      const authorIds = Array.from(new Set(rows.map((p) => p.author_id)));
+      const profilesById = new Map<string, { display_name: string; avatar_url: string | null }>();
+      if (authorIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, display_name, avatar_url")
+          .in("id", authorIds);
+        for (const p of profiles ?? []) profilesById.set(p.id, p);
+      }
+
+      return rows.map((p: any) => ({
         ...p,
-        authorName: p.profiles?.display_name,
+        authorId: p.author_id,
+        authorName: profilesById.get(p.author_id)?.display_name,
+        authorAvatar: profilesById.get(p.author_id)?.avatar_url,
+        imageUrl: p.image_url,
       })) as FeedPost[];
     },
   });
@@ -122,9 +160,31 @@ function CommunityPage() {
 
       {/* Banner / Cover */}
       <div className="relative w-full h-48 md:h-64 bg-gradient-to-br from-primary/15 to-primary/5 rounded-t-xl overflow-hidden flex items-end">
+        {c.banner_url ? (
+          <img src={c.banner_url} alt="" className="absolute inset-0 h-full w-full object-cover" />
+        ) : null}
         <div className="absolute inset-0 bg-black/10" />
-        <div className="relative p-6 md:p-8 w-full text-foreground bg-gradient-to-t from-background to-transparent pt-12">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        {canEditMedia ? (
+          <div className="absolute right-4 top-4 z-10">
+            <EditCommunityMediaDialog
+              communityId={c.id}
+              bannerUrl={c.banner_url}
+              avatarUrl={c.avatar_url}
+              onSaved={() => queryClient.invalidateQueries({ queryKey: ["community", slug] })}
+            />
+          </div>
+        ) : null}
+        <div className="relative flex w-full items-end gap-4 bg-gradient-to-t from-background to-transparent p-6 pt-12 text-foreground md:p-8">
+          <div className="size-16 shrink-0 overflow-hidden rounded-2xl border-4 border-background bg-muted shadow-md md:size-20">
+            {c.avatar_url ? (
+              <img src={c.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-primary/10 text-2xl font-bold text-primary">
+                {c.name.charAt(0).toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div className="flex flex-1 flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="space-y-1">
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight drop-shadow-sm">
                 {c.name}
@@ -279,7 +339,12 @@ function CommunityPage() {
                 {members.data?.map((m) => {
                   const prof = m.profiles as any;
                   return (
-                    <div key={m.id} className="surface-card p-4 flex items-center gap-3">
+                    <Link
+                      key={m.id}
+                      to="/perfil/$id"
+                      params={{ id: m.user_id }}
+                      className="surface-card flex items-center gap-3 p-4 transition-shadow hover:shadow-lift"
+                    >
                       <div className="size-10 rounded-full bg-muted overflow-hidden shrink-0 flex items-center justify-center font-bold text-primary bg-primary/10">
                         {prof?.avatar_url ? (
                           <img
@@ -300,7 +365,7 @@ function CommunityPage() {
                         </p>
                         <p className="text-xs text-muted-foreground">Membro</p>
                       </div>
-                    </div>
+                    </Link>
                   );
                 })}
               </div>
@@ -309,5 +374,80 @@ function CommunityPage() {
         </Tabs>
       </div>
     </AppShell>
+  );
+}
+
+function EditCommunityMediaDialog({
+  communityId,
+  bannerUrl,
+  avatarUrl,
+  onSaved,
+}: {
+  communityId: string;
+  bannerUrl: string | null;
+  avatarUrl: string | null;
+  onSaved: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [banner, setBanner] = useState(bannerUrl);
+  const [avatar, setAvatar] = useState(avatarUrl);
+
+  const save = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("communities")
+        .update({ banner_url: banner, avatar_url: avatar })
+        .eq("id", communityId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Imagens da comunidade atualizadas.");
+      setOpen(false);
+      onSaved();
+    },
+    onError: () => toast.error("Não foi possível salvar as imagens agora."),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" variant="secondary">
+          <Pencil className="mr-2 size-3.5" /> Editar imagens
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Imagens da comunidade</DialogTitle>
+          <DialogDescription>Atualize a capa e o ícone exibidos para todo mundo.</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-2">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Capa</label>
+            <ImageUploader
+              type="community-banner"
+              currentUrl={banner}
+              onUploadComplete={setBanner}
+              onRemove={() => setBanner(null)}
+              className="h-28 w-full"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Ícone</label>
+            <ImageUploader
+              type="community-avatar"
+              currentUrl={avatar}
+              onUploadComplete={setAvatar}
+              onRemove={() => setAvatar(null)}
+              className="h-24 w-24 rounded-full"
+            />
+          </div>
+        </div>
+        <div className="flex justify-end">
+          <Button onClick={() => save.mutate()} disabled={save.isPending}>
+            {save.isPending ? "Salvando..." : "Salvar"}
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

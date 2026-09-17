@@ -18,7 +18,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
-import { useSession, useRoles } from "@/hooks/useSession";
+import { useSession, useRoles, useProfile } from "@/hooks/useSession";
 import { BRAND } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -55,6 +55,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { pathname } = useRouterState({ select: (s) => s.location });
   const { user } = useSession();
   const { data: roles } = useRoles(user);
+  const { data: profile } = useProfile(user);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -107,6 +108,19 @@ export function AppShell({ children }: { children: ReactNode }) {
                 Publicar
               </Link>
             </Button>
+            {user ? (
+              <Link
+                to="/meu-espaco"
+                aria-label="Meu espaço"
+                className="hidden size-9 shrink-0 overflow-hidden rounded-full border border-border bg-primary/10 sm:flex items-center justify-center font-semibold text-primary hover:ring-2 hover:ring-primary/30 transition-shadow"
+              >
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  (profile?.display_name ?? user.email ?? "?").charAt(0).toUpperCase()
+                )}
+              </Link>
+            ) : null}
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon" aria-label="Abrir menu">

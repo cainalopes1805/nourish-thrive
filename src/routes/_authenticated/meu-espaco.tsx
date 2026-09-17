@@ -187,6 +187,7 @@ function MySpacePage() {
                   type="banner"
                   currentUrl={bannerUrl}
                   onUploadComplete={setBannerUrl}
+                  onRemove={() => setBannerUrl(null)}
                   className="h-32 w-full"
                 />
               </div>
@@ -196,6 +197,7 @@ function MySpacePage() {
                   type="avatar"
                   currentUrl={avatarUrl}
                   onUploadComplete={setAvatarUrl}
+                  onRemove={() => setAvatarUrl(null)}
                   className="h-32 w-32 rounded-full mx-auto sm:mx-0"
                 />
               </div>
