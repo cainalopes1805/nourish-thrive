@@ -123,16 +123,21 @@ function ProfessionalsPage() {
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-2">
-        {filtered.map((p) => (
+        {filtered.map((p, i) => (
           <Link
             key={p.id}
             to="/profissionais/$id"
             params={{ id: p.id }}
-            className="surface-card flex gap-4 p-5 transition-shadow hover:shadow-lift"
+            style={{ animationDelay: `${Math.min(i * 60, 360)}ms` }}
+            className="surface-card group flex gap-4 p-5 card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
           >
-            <div className="size-16 shrink-0 overflow-hidden rounded-full bg-primary/10">
+            <div className="size-16 shrink-0 overflow-hidden rounded-full bg-primary/10 ring-2 ring-transparent transition-all group-hover:ring-primary/50">
               {p.profile_photo ? (
-                <img src={p.profile_photo} alt="" className="h-full w-full object-cover" />
+                <img
+                  src={p.profile_photo}
+                  alt=""
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-xl font-bold text-primary">
                   {p.name.charAt(0).toUpperCase()}

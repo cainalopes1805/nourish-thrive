@@ -67,8 +67,10 @@ function LearnPage() {
           to="/aprender"
           search={{}}
           className={cn(
-            "rounded-full border border-border px-3 py-1.5 text-sm",
-            !categoria && "bg-secondary text-deep",
+            "rounded-full border border-border px-3 py-1.5 text-sm font-medium transition-all",
+            !categoria
+              ? "border-transparent bg-primary text-primary-foreground shadow-glow"
+              : "hover:border-primary/40 hover:text-primary",
           )}
         >
           Todos
@@ -79,8 +81,10 @@ function LearnPage() {
             to="/aprender"
             search={{ categoria: cat }}
             className={cn(
-              "rounded-full border border-border px-3 py-1.5 text-sm",
-              categoria === cat && "bg-secondary text-deep",
+              "rounded-full border border-border px-3 py-1.5 text-sm font-medium transition-all",
+              categoria === cat
+                ? "border-transparent bg-primary text-primary-foreground shadow-glow"
+                : "hover:border-primary/40 hover:text-primary",
             )}
           >
             {cat}
@@ -98,26 +102,35 @@ function LearnPage() {
       ) : null}
 
       <div className="grid gap-4 md:grid-cols-2">
-        {data?.map((a) => (
+        {data?.map((a, i) => (
           <Link
             key={a.id}
             to="/aprender/$slug"
             params={{ slug: a.slug }}
-            className="surface-card flex flex-col overflow-hidden transition-shadow hover:shadow-lift"
+            style={{ animationDelay: `${Math.min(i * 60, 360)}ms` }}
+            className="surface-card group flex flex-col overflow-hidden card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
           >
             {a.cover_url ? (
               <div className="h-36 w-full overflow-hidden bg-muted">
-                <img src={a.cover_url} alt="" loading="lazy" className="h-full w-full object-cover" />
+                <img
+                  src={a.cover_url}
+                  alt=""
+                  loading="lazy"
+                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
               </div>
             ) : null}
             <div className="p-5">
-              <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
-                <BookOpen className="size-4" aria-hidden="true" />
-                <span>{a.category}</span>
-                <span aria-hidden="true">•</span>
-                <span>{a.reading_minutes} min</span>
+              <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-accent-foreground">
+                <span className="inline-flex items-center gap-1 rounded-full bg-accent/60 px-2 py-0.5">
+                  <BookOpen className="size-3.5" aria-hidden="true" />
+                  {a.category}
+                </span>
+                <span className="text-muted-foreground">{a.reading_minutes} min</span>
               </div>
-              <h2 className="font-semibold leading-snug">{a.title}</h2>
+              <h2 className="font-semibold leading-snug transition-colors group-hover:text-primary">
+                {a.title}
+              </h2>
               <p className="mt-2 text-sm text-muted-foreground">{a.summary}</p>
               <p className="mt-3 text-xs text-muted-foreground">Por {a.author_name}</p>
             </div>

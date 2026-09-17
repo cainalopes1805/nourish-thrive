@@ -87,8 +87,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "rounded-full px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground",
-                  pathname.startsWith(item.to) && "bg-secondary text-deep",
+                  "rounded-full px-3 py-2 text-sm font-semibold text-muted-foreground transition-all hover:bg-secondary hover:text-foreground",
+                  pathname.startsWith(item.to) &&
+                    "bg-gradient-to-r from-primary to-warm text-primary-foreground shadow-glow",
                 )}
               >
                 {item.label}
@@ -206,7 +207,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <Link
         to="/criar"
         aria-label="Criar publicação"
-        className="fixed bottom-24 right-5 z-40 flex size-14 items-center justify-center rounded-full bg-accent text-accent-foreground shadow-lift transition-transform hover:scale-105 md:hidden"
+        className="animate-pulse-glow fixed bottom-24 right-5 z-40 flex size-14 items-center justify-center rounded-full bg-gradient-to-br from-primary to-warm text-primary-foreground shadow-lift transition-transform hover:scale-105 md:hidden"
       >
         <Plus className="size-6" aria-hidden="true" />
       </Link>
@@ -224,8 +225,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Link
                   to={item.to}
                   className={cn(
-                    "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-muted-foreground",
-                    active && "text-deep",
+                    "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-muted-foreground transition-colors",
+                    active && "text-primary",
                   )}
                 >
                   <Icon className="size-5" aria-hidden="true" />

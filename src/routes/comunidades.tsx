@@ -91,14 +91,15 @@ function CommunitiesPage() {
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredData?.map((c) => {
+        {filteredData?.map((c, i) => {
           const membersCount = c.community_members?.[0]?.count || 0;
           return (
             <Link
               key={c.id}
               to="/comunidades/$slug"
               params={{ slug: c.slug }}
-              className="surface-card group flex flex-col overflow-hidden transition-shadow hover:shadow-lift"
+              style={{ animationDelay: `${Math.min(i * 60, 360)}ms` }}
+              className="surface-card group flex flex-col overflow-hidden card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
             >
               <div className="relative h-24 w-full overflow-hidden bg-gradient-to-br from-primary/10 to-primary/5">
                 {c.banner_url ? (

@@ -94,8 +94,10 @@ function FeedPage() {
         <button
           onClick={() => setType("")}
           className={cn(
-            "rounded-full border border-border px-3 py-1.5 text-sm",
-            !type && "bg-secondary text-deep",
+            "rounded-full border border-border px-3 py-1.5 text-sm font-medium transition-all",
+            !type
+              ? "border-transparent bg-primary text-primary-foreground shadow-glow"
+              : "hover:border-primary/40 hover:text-primary",
           )}
         >
           Tudo
@@ -105,8 +107,10 @@ function FeedPage() {
             key={t.value}
             onClick={() => setType(t.value)}
             className={cn(
-              "rounded-full border border-border px-3 py-1.5 text-sm",
-              type === t.value && "bg-secondary text-deep",
+              "rounded-full border border-border px-3 py-1.5 text-sm font-medium transition-all",
+              type === t.value
+                ? "border-transparent bg-primary text-primary-foreground shadow-glow"
+                : "hover:border-primary/40 hover:text-primary",
             )}
           >
             {t.label}
@@ -129,8 +133,14 @@ function FeedPage() {
       ) : null}
 
       <div className="space-y-4">
-        {data?.map((p) => (
-          <PostCard key={p.id} post={p} />
+        {data?.map((p, i) => (
+          <div
+            key={p.id}
+            className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
+            style={{ animationDelay: `${Math.min(i * 60, 360)}ms` }}
+          >
+            <PostCard post={p} />
+          </div>
         ))}
       </div>
 

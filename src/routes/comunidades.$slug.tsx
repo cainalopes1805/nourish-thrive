@@ -303,8 +303,14 @@ function CommunityPage() {
                 />
               ) : (
                 <div className="space-y-4">
-                  {posts.data?.map((p) => (
-                    <PostCard key={p.id} post={{ ...p, communityName: c.name }} />
+                  {posts.data?.map((p, i) => (
+                    <div
+                      key={p.id}
+                      className="animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
+                      style={{ animationDelay: `${Math.min(i * 60, 360)}ms` }}
+                    >
+                      <PostCard post={{ ...p, communityName: c.name }} />
+                    </div>
                   ))}
                 </div>
               )}
@@ -343,7 +349,7 @@ function CommunityPage() {
                       key={m.id}
                       to="/perfil/$id"
                       params={{ id: m.user_id }}
-                      className="surface-card flex items-center gap-3 p-4 transition-shadow hover:shadow-lift"
+                      className="surface-card flex items-center gap-3 p-4 card-pop"
                     >
                       <div className="size-10 rounded-full bg-muted overflow-hidden shrink-0 flex items-center justify-center font-bold text-primary bg-primary/10">
                         {prof?.avatar_url ? (

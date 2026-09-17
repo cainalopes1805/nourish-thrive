@@ -26,6 +26,29 @@ export const POST_TYPE_LABEL: Record<string, string> = Object.fromEntries(
   POST_TYPES.map((t) => [t.value, t.label]),
 );
 
+// Warm, vivid, distinguishable accents per post type — used for badges and card highlights.
+export const POST_TYPE_BADGE_CLASS: Record<string, string> = {
+  experiencia: "bg-primary/15 text-primary",
+  duvida: "bg-accent/30 text-accent-foreground",
+  receita: "bg-warm/30 text-warm-foreground",
+  educativo: "bg-secondary text-secondary-foreground",
+  profissional: "bg-deep text-deep-foreground",
+  saude_mental: "bg-destructive/15 text-destructive",
+  apoio: "bg-primary/25 text-primary",
+  enquete: "bg-accent/20 text-accent-foreground",
+};
+
+export const POST_TYPE_ACCENT_CLASS: Record<string, string> = {
+  experiencia: "from-primary to-primary/60",
+  duvida: "from-accent to-accent/60",
+  receita: "from-warm to-warm/60",
+  educativo: "from-secondary-foreground/70 to-secondary-foreground/30",
+  profissional: "from-deep to-deep/60",
+  saude_mental: "from-destructive to-destructive/60",
+  apoio: "from-primary to-warm",
+  enquete: "from-accent to-warm",
+};
+
 export const SENSITIVE_TOPICS = [
   { value: "peso", label: "Peso" },
   { value: "calorias", label: "Calorias" },

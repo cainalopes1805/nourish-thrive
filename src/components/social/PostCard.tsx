@@ -1,7 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Heart, MessageCircle } from "lucide-react";
-import { POST_TYPE_LABEL } from "@/lib/constants";
+import { POST_TYPE_LABEL, POST_TYPE_BADGE_CLASS, POST_TYPE_ACCENT_CLASS } from "@/lib/constants";
 import { VerifiedBadge } from "@/components/common/SafetyNote";
+import { cn } from "@/lib/utils";
 
 export type FeedPost = {
   id: string;
@@ -43,9 +44,12 @@ function AuthorAvatar({
 export function PostCard({ post }: { post: FeedPost }) {
   const author = post.is_anonymous ? "Membro anônimo" : (post.authorName ?? "Membro");
   const showAvatarLink = !post.is_anonymous && post.authorId;
+  const accent = POST_TYPE_ACCENT_CLASS[post.post_type] ?? "from-primary to-primary/60";
+  const badgeClass = POST_TYPE_BADGE_CLASS[post.post_type] ?? "bg-secondary text-secondary-foreground";
 
   return (
-    <article className="surface-card space-y-3 p-5">
+    <article className="surface-card card-pop relative space-y-3 overflow-hidden p-5 pt-6">
+      <span className={cn("absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r", accent)} aria-hidden="true" />
       <div className="flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground">
         {showAvatarLink ? (
           <Link to="/perfil/$id" params={{ id: post.authorId! }} className="shrink-0">
@@ -67,7 +71,7 @@ export function PostCard({ post }: { post: FeedPost }) {
             <span className="font-semibold text-foreground">{author}</span>
           )}
           {post.is_professional_content ? <VerifiedBadge /> : null}
-          <span className="rounded-full bg-secondary px-2 py-0.5 font-medium text-secondary-foreground">
+          <span className={cn("rounded-full px-2 py-0.5 font-semibold", badgeClass)}>
             {POST_TYPE_LABEL[post.post_type] ?? post.post_type}
           </span>
           {post.communityName ? <span>em {post.communityName}</span> : null}
@@ -115,7 +119,7 @@ export function PostCard({ post }: { post: FeedPost }) {
           {post.tags.map((t) => (
             <li
               key={t}
-              className="rounded-full bg-secondary px-2.5 py-1 text-[11px] text-secondary-foreground"
+              className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/20"
             >
               #{t}
             </li>
@@ -123,14 +127,23 @@ export function PostCard({ post }: { post: FeedPost }) {
         </ul>
       ) : null}
 
-      <div className="flex items-center gap-4 pt-1 text-xs text-muted-foreground">
-        <span className="inline-flex items-center gap-1">
-          <Heart className="size-4" aria-hidden="true" /> {post.reactions ?? 0}
+      <div className="flex items-center gap-4 border-t border-border pt-3 text-xs text-muted-foreground">
+        <span
+          className={cn(
+            "inline-flex items-center gap-1.5 font-medium",
+            (post.reactions ?? 0) > 0 && "text-destructive",
+          )}
+        >
+          <Heart
+            className={cn("size-4", (post.reactions ?? 0) > 0 && "fill-destructive")}
+            aria-hidden="true"
+          />{" "}
+          {post.reactions ?? 0}
         </span>
         <Link
           to="/publicacoes/$id"
           params={{ id: post.id }}
-          className="inline-flex items-center gap-1 hover:text-foreground"
+          className="inline-flex items-center gap-1.5 font-medium transition-colors hover:text-primary"
         >
           <MessageCircle className="size-4" aria-hidden="true" /> {post.comments ?? 0} comentários
         </Link>

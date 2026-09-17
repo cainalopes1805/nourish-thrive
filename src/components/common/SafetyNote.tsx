@@ -18,7 +18,7 @@ export function SafetyNote({ children }: { children?: React.ReactNode }) {
 
 export function VerifiedBadge({ label = "Profissional verificado" }: { label?: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-primary/12 px-2.5 py-1 text-[11px] font-semibold text-deep">
+    <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-1 text-[11px] font-semibold text-primary">
       <ShieldCheck className="size-3.5" aria-hidden="true" />
       {label}
     </span>

@@ -45,7 +45,7 @@ function Landing() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("communities")
-        .select("id,slug,name,description")
+        .select("id,slug,name,description,banner_url,avatar_url")
         .limit(6);
       if (error) throw error;
       return data;
@@ -57,7 +57,7 @@ function Landing() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("articles")
-        .select("id,slug,title,summary,category,badge,reading_minutes")
+        .select("id,slug,title,summary,category,badge,reading_minutes,cover_url")
         .limit(3);
       if (error) throw error;
       return data;
@@ -69,7 +69,7 @@ function Landing() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("professional_profiles")
-        .select("id,name,profession,location,specialties,is_demo")
+        .select("id,name,profession,location,specialties,is_demo,profile_photo")
         .eq("verified_status", "approved")
         .limit(3);
       if (error) throw error;
@@ -79,7 +79,7 @@ function Landing() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
+      <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
         <div className="container-page flex h-16 items-center justify-between">
           <Logo />
           <div className="flex items-center gap-2">
@@ -89,7 +89,7 @@ function Landing() {
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
               <Link to="/profissionais">Profissionais</Link>
             </Button>
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="shadow-glow">
               <Link to="/auth">Entrar</Link>
             </Button>
           </div>
@@ -97,41 +97,54 @@ function Landing() {
       </header>
 
       <main>
-        <section className="container-page grid items-center gap-10 py-14 md:py-20 lg:grid-cols-2">
-          <div className="space-y-6">
-            <span className="inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground">
-              <Sprout className="size-3.5" aria-hidden="true" />
-              {BRAND.tagline}
-            </span>
-            <h1 className="text-4xl font-extrabold leading-[1.05] md:text-5xl">
-              Cuidar da alimentação também é cuidar de você.
-            </h1>
-            <p className="max-w-xl text-lg text-muted-foreground">
-              Aprenda, compartilhe, encontre apoio e conecte-se a profissionais de saúde.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild size="lg">
-                <Link to="/auth">
-                  Entrar na comunidade
-                  <ArrowRight className="size-4" aria-hidden="true" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link to="/profissionais">Encontrar profissional</Link>
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Sem contagem de calorias, sem antes e depois, sem promessas de emagrecimento.
-            </p>
+        <section className="relative overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+            <div className="absolute -top-24 -left-24 size-[26rem] animate-float rounded-full bg-primary/25 blur-3xl" />
+            <div className="absolute top-1/3 -right-24 size-[24rem] animate-float-slower rounded-full bg-accent/30 blur-3xl" />
+            <div className="absolute -bottom-32 left-1/4 size-[22rem] animate-float rounded-full bg-warm/30 blur-3xl" />
           </div>
-          <div className="overflow-hidden rounded-3xl border border-border shadow-lift">
-            <img
-              src={heroImg}
-              alt="Três pessoas dividindo uma refeição caseira em uma mesa de madeira"
-              width={1600}
-              height={1104}
-              className="h-full w-full object-cover"
-            />
+
+          <div className="container-page grid items-center gap-10 py-14 md:py-20 lg:grid-cols-2">
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-6">
+              <span className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-warm px-3 py-1 text-xs font-semibold text-primary-foreground shadow-glow">
+                <Sprout className="size-3.5" aria-hidden="true" />
+                {BRAND.tagline}
+              </span>
+              <h1 className="text-4xl font-extrabold leading-[1.05] md:text-5xl">
+                Cuidar da alimentação também é{" "}
+                <span className="bg-gradient-to-r from-primary via-warm to-accent bg-clip-text text-transparent">
+                  cuidar de você
+                </span>
+                .
+              </h1>
+              <p className="max-w-xl text-lg text-muted-foreground">
+                Aprenda, compartilhe, encontre apoio e conecte-se a profissionais de saúde.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Button asChild size="lg" className="animate-pulse-glow">
+                  <Link to="/auth">
+                    Entrar na comunidade
+                    <ArrowRight className="size-4" aria-hidden="true" />
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                  <Link to="/profissionais">Encontrar profissional</Link>
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Sem contagem de calorias, sem antes e depois, sem promessas de emagrecimento.
+              </p>
+            </div>
+            <div className="animate-in fade-in zoom-in-95 duration-700 relative overflow-hidden rounded-3xl border border-border shadow-lift transition-transform duration-500 hover:-rotate-1 hover:scale-[1.02]">
+              <img
+                src={heroImg}
+                alt="Três pessoas dividindo uma refeição caseira em uma mesa de madeira"
+                width={1600}
+                height={1104}
+                className="h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-deep/40 via-transparent to-transparent" />
+            </div>
           </div>
         </section>
 
@@ -145,16 +158,39 @@ function Landing() {
           }
         >
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {(communities ?? []).map((c) => (
+            {(communities ?? []).map((c, i) => (
               <Link
                 key={c.id}
                 to="/comunidades/$slug"
                 params={{ slug: c.slug }}
-                className="surface-card block p-5 transition-shadow hover:shadow-lift"
+                style={{ animationDelay: `${Math.min(i * 70, 350)}ms` }}
+                className="surface-card group flex flex-col overflow-hidden card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
               >
-                <Users className="size-5 text-primary" aria-hidden="true" />
-                <h3 className="mt-3 font-semibold">{c.name}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{c.description}</p>
+                <div className="relative h-28 w-full overflow-hidden bg-gradient-to-br from-primary/20 to-warm/20">
+                  {c.banner_url ? (
+                    <img
+                      src={c.banner_url}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : null}
+                </div>
+                <div className="flex flex-1 flex-col p-5">
+                  <div className="-mt-9 mb-2 flex items-center gap-3">
+                    <div className="size-11 shrink-0 overflow-hidden rounded-full border-4 border-card bg-primary/15 shadow-sm">
+                      {c.avatar_url ? (
+                        <img src={c.avatar_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-primary">
+                          <Users className="size-4" aria-hidden="true" />
+                        </div>
+                      )}
+                    </div>
+                    <h3 className="font-semibold">{c.name}</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{c.description}</p>
+                </div>
               </Link>
             ))}
           </div>
@@ -170,21 +206,36 @@ function Landing() {
           }
         >
           <div className="grid gap-4 md:grid-cols-3">
-            {(articles ?? []).map((a) => (
+            {(articles ?? []).map((a, i) => (
               <Link
                 key={a.id}
                 to="/aprender/$slug"
                 params={{ slug: a.slug }}
-                className="surface-card flex flex-col gap-2 p-5 transition-shadow hover:shadow-lift"
+                style={{ animationDelay: `${Math.min(i * 70, 350)}ms` }}
+                className="surface-card group flex flex-col overflow-hidden card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
               >
-                <span className="text-xs font-semibold uppercase tracking-wide text-primary">
-                  {a.category}
-                </span>
-                <h3 className="font-semibold">{a.title}</h3>
-                <p className="text-sm text-muted-foreground">{a.summary}</p>
-                <span className="mt-auto pt-2 text-xs text-muted-foreground">
-                  {a.badge} · {a.reading_minutes} min
-                </span>
+                {a.cover_url ? (
+                  <div className="h-32 w-full overflow-hidden bg-muted">
+                    <img
+                      src={a.cover_url}
+                      alt=""
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  </div>
+                ) : null}
+                <div className="flex flex-1 flex-col gap-2 p-5">
+                  <span className="inline-flex w-fit items-center rounded-full bg-accent/30 px-2.5 py-0.5 text-xs font-semibold text-accent-foreground">
+                    {a.category}
+                  </span>
+                  <h3 className="font-semibold transition-colors group-hover:text-primary">
+                    {a.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">{a.summary}</p>
+                  <span className="mt-auto pt-2 text-xs text-muted-foreground">
+                    {a.badge} · {a.reading_minutes} min
+                  </span>
+                </div>
               </Link>
             ))}
           </div>
@@ -200,24 +251,40 @@ function Landing() {
           }
         >
           <div className="grid gap-4 md:grid-cols-3">
-            {(pros ?? []).map((p) => (
+            {(pros ?? []).map((p, i) => (
               <Link
                 key={p.id}
                 to="/profissionais/$id"
                 params={{ id: p.id }}
-                className="surface-card p-5 transition-shadow hover:shadow-lift"
+                style={{ animationDelay: `${Math.min(i * 70, 350)}ms` }}
+                className="surface-card group flex gap-4 p-5 card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
               >
-                <div className="flex flex-wrap items-center gap-2">
-                  <VerifiedBadge />
-                  {p.is_demo ? <DemoBadge /> : null}
+                <div className="size-14 shrink-0 overflow-hidden rounded-full bg-primary/15 ring-2 ring-transparent transition-all group-hover:ring-primary/50">
+                  {p.profile_photo ? (
+                    <img
+                      src={p.profile_photo}
+                      alt=""
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-lg font-bold text-primary">
+                      {p.name.charAt(0).toUpperCase()}
+                    </div>
+                  )}
                 </div>
-                <h3 className="mt-3 font-semibold">{p.name}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {p.profession} · {p.location}
-                </p>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {(p.specialties ?? []).slice(0, 3).join(" · ")}
-                </p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <VerifiedBadge />
+                    {p.is_demo ? <DemoBadge /> : null}
+                  </div>
+                  <h3 className="mt-1 font-semibold">{p.name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {p.profession} · {p.location}
+                  </p>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {(p.specialties ?? []).slice(0, 3).join(" · ")}
+                  </p>
+                </div>
               </Link>
             ))}
           </div>
@@ -227,17 +294,22 @@ function Landing() {
         </Section>
 
         <section className="container-page grid gap-6 py-14 md:grid-cols-2">
-          <article className="surface-card overflow-hidden">
-            <img
-              src={segurancaImg}
-              alt="Bancada de cozinha com legumes frescos e verduras lavadas em um escorredor"
-              width={1200}
-              height={800}
-              loading="lazy"
-              className="h-52 w-full object-cover"
-            />
+          <article className="surface-card group card-pop overflow-hidden">
+            <div className="relative h-52 w-full overflow-hidden">
+              <img
+                src={segurancaImg}
+                alt="Bancada de cozinha com legumes frescos e verduras lavadas em um escorredor"
+                width={1200}
+                height={800}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-deep/50 to-transparent" />
+            </div>
             <div className="space-y-3 p-6">
-              <ShieldCheck className="size-5 text-primary" aria-hidden="true" />
+              <span className="inline-flex size-10 items-center justify-center rounded-full bg-primary/15 text-primary">
+                <ShieldCheck className="size-5" aria-hidden="true" />
+              </span>
               <h2 className="text-xl font-bold">Segurança alimentar no dia a dia</h2>
               <p className="text-sm text-muted-foreground">
                 Higiene, contaminação cruzada, armazenamento, congelamento, validade e rotulagem —
@@ -250,17 +322,22 @@ function Landing() {
               </Button>
             </div>
           </article>
-          <article className="surface-card overflow-hidden">
-            <img
-              src={saudeMentalImg}
-              alt="Pessoa sentada junto à janela segurando uma caneca, em um momento tranquilo"
-              width={1200}
-              height={800}
-              loading="lazy"
-              className="h-52 w-full object-cover"
-            />
+          <article className="surface-card group card-pop overflow-hidden">
+            <div className="relative h-52 w-full overflow-hidden">
+              <img
+                src={saudeMentalImg}
+                alt="Pessoa sentada junto à janela segurando uma caneca, em um momento tranquilo"
+                width={1200}
+                height={800}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-deep/50 to-transparent" />
+            </div>
             <div className="space-y-3 p-6">
-              <HeartHandshake className="size-5 text-accent" aria-hidden="true" />
+              <span className="inline-flex size-10 items-center justify-center rounded-full bg-accent/30 text-accent-foreground">
+                <HeartHandshake className="size-5" aria-hidden="true" />
+              </span>
               <h2 className="text-xl font-bold">Saúde mental e relação com a comida</h2>
               <p className="text-sm text-muted-foreground">
                 Fome, saciedade, culpa alimentar, imagem corporal e sinais de alerta — com apoio e
@@ -291,8 +368,8 @@ function Landing() {
                 d: "Converse na comunidade, leia conteúdo confiável e agende com profissionais verificados.",
               },
             ].map((s, i) => (
-              <li key={s.t} className="surface-card p-5">
-                <span className="flex size-8 items-center justify-center rounded-full bg-deep text-sm font-bold text-deep-foreground">
+              <li key={s.t} className="surface-card card-pop p-5">
+                <span className="flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-warm text-sm font-bold text-primary-foreground shadow-glow">
                   {i + 1}
                 </span>
                 <h3 className="mt-3 font-semibold">{s.t}</h3>
@@ -303,7 +380,7 @@ function Landing() {
         </Section>
 
         <section className="container-page py-14">
-          <div className="surface-card flex flex-col items-start gap-4 bg-deep p-8 text-deep-foreground md:flex-row md:items-center md:justify-between">
+          <div className="gradient-deep-panel surface-card flex flex-col items-start gap-4 border-0 p-8 text-deep-foreground shadow-glow md:flex-row md:items-center md:justify-between">
             <div className="space-y-2">
               <h2 className="flex items-center gap-2 text-2xl font-bold">
                 <LifeBuoy className="size-5" aria-hidden="true" /> Precisa de ajuda agora?
@@ -330,8 +407,10 @@ function Landing() {
               "Organização Mundial da Saúde",
               "Diretrizes clínicas e conselhos profissionais",
             ].map((s) => (
-              <li key={s} className="surface-card flex items-center gap-2 p-4 text-sm">
-                <BookOpen className="size-4 text-primary" aria-hidden="true" />
+              <li key={s} className="surface-card card-pop flex items-center gap-2 p-4 text-sm">
+                <span className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-primary">
+                  <BookOpen className="size-4" aria-hidden="true" />
+                </span>
                 {s}
               </li>
             ))}
