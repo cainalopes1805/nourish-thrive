@@ -1,9 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { BookOpen, Clock, ExternalLink, GraduationCap, Quote } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { CardSkeletonList, ErrorState } from "@/components/common/states";
-import { SafetyNote } from "@/components/common/SafetyNote";
+import { SafetyNote, VerifiedBadge } from "@/components/common/SafetyNote";
+import { ArticleCard, type ArticlePreview } from "@/components/learn/ArticleCard";
+import { LEARN_THEME_BY_CATEGORY } from "@/lib/learnThemes";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/aprender/$slug")({
   head: () => ({
@@ -55,6 +59,21 @@ function ArticlePage() {
     },
   });
 
+  const moreFromTheme = useQuery({
+    queryKey: ["article-theme-more", article.data?.category, article.data?.id],
+    enabled: !!article.data?.category,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("articles")
+        .select("id, slug, title, summary, category, reading_minutes, author_name, badge, cover_url")
+        .eq("category", article.data!.category)
+        .neq("id", article.data!.id)
+        .limit(3);
+      if (error) throw error;
+      return (data ?? []) as ArticlePreview[];
+    },
+  });
+
   if (article.isLoading) {
     return (
       <AppShell>
@@ -72,85 +91,185 @@ function ArticlePage() {
   }
 
   const a = article.data;
+  const theme = LEARN_THEME_BY_CATEGORY[a.category];
+  const Icon = theme?.icon ?? BookOpen;
+  const accent = theme?.accent ?? "from-primary to-warm";
+  const paragraphs = a.body.split(/\n{2,}/).filter(Boolean);
+  const isVerifiedAuthor = a.author_type === "profissional_verificado";
 
   return (
     <AppShell>
-      <nav className="mb-4 text-sm text-muted-foreground">
+      <nav className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground">
         <Link to="/aprender" className="hover:underline">
           Aprender
-        </Link>{" "}
-        / <span className="text-foreground">{a.category}</span>
+        </Link>
+        <span aria-hidden="true">/</span>
+        <Link to="/aprender" search={{ categoria: a.category }} className="hover:text-primary hover:underline">
+          {a.category}
+        </Link>
       </nav>
 
-      <article className="surface-card space-y-5 overflow-hidden p-0">
-        {a.cover_url ? (
-          <div className="h-48 w-full overflow-hidden bg-muted md:h-64">
-            <img src={a.cover_url} alt="" className="h-full w-full object-cover" />
+      <div className="mx-auto max-w-3xl space-y-6">
+        {/* Magazine cover hero */}
+        <div className="relative overflow-hidden rounded-3xl shadow-lift">
+          {a.cover_url ? (
+            <img src={a.cover_url} alt="" className="h-56 w-full object-cover md:h-80" />
+          ) : (
+            <div className={cn("h-56 w-full bg-gradient-to-br md:h-80", accent)} />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-deep/90 via-deep/25 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 space-y-2 p-6 text-deep-foreground md:p-8">
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold shadow-sm",
+                theme?.badgeClass ?? "bg-primary/20 text-primary",
+              )}
+            >
+              <Icon className="size-3.5" aria-hidden="true" />
+              {a.category}
+            </span>
+            <h1 className="text-2xl font-extrabold leading-tight tracking-tight drop-shadow-sm md:text-4xl">
+              {a.title}
+            </h1>
           </div>
-        ) : null}
-        <div className="space-y-5 p-6 md:p-8">
-        <header className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-deep">
-            {a.content_type} • {a.reading_minutes} min • leitura {a.reading_level}
-          </p>
-          <h1 className="text-2xl font-extrabold leading-tight tracking-tight md:text-3xl">
-            {a.title}
-          </h1>
-          <p className="text-sm text-muted-foreground">{a.summary}</p>
-          <p className="text-xs text-muted-foreground">
-            Por {a.author_name} • publicado em{" "}
-            {new Date(a.published_at).toLocaleDateString("pt-BR")}
-          </p>
-        </header>
-
-        {a.sensitive_topics?.length ? (
-          <p className="rounded-lg bg-warm/20 px-4 py-3 text-xs text-warm-foreground">
-            Este conteúdo menciona temas sensíveis ({a.sensitive_topics.join(", ")}). Leia com
-            cuidado e pause se precisar.
-          </p>
-        ) : null}
-
-        <div className="prose-mesa whitespace-pre-line text-[15px] leading-relaxed text-foreground/90">
-          {a.body}
         </div>
 
-        <section aria-labelledby="fontes" className="border-t border-border pt-5">
-          <h2 id="fontes" className="mb-3 text-sm font-semibold">
-            Fontes
+        {/* Meta strip */}
+        <div className="surface-card flex flex-wrap items-center gap-x-6 gap-y-2 p-4 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
+            {a.author_name}
+            {isVerifiedAuthor ? <VerifiedBadge label="Verificado" /> : null}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Clock className="size-4" aria-hidden="true" />
+            {a.reading_minutes} min de leitura
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <GraduationCap className="size-4" aria-hidden="true" />
+            Nível {a.reading_level}
+          </span>
+          <span>
+            Publicado em {new Date(a.published_at).toLocaleDateString("pt-BR")}
+          </span>
+        </div>
+
+        {a.sensitive_topics?.length ? (
+          <div className="rounded-2xl border border-warm/40 bg-warm/15 px-5 py-4 text-sm text-warm-foreground">
+            <p className="font-semibold">Este conteúdo menciona temas sensíveis</p>
+            <p className="mt-1 text-xs opacity-90">
+              ({a.sensitive_topics.join(", ")}). Leia com cuidado e pause se precisar.
+            </p>
+          </div>
+        ) : null}
+
+        {/* Lead / summary callout */}
+        <div className={cn("relative overflow-hidden rounded-2xl bg-gradient-to-br p-6 text-primary-foreground shadow-glow", accent)}>
+          <Quote className="absolute -right-2 -top-2 size-20 opacity-15" aria-hidden="true" />
+          <p className="relative text-lg font-medium leading-relaxed">{a.summary}</p>
+        </div>
+
+        {/* Body */}
+        <article className="surface-card space-y-4 p-6 md:p-8">
+          <div className={cn("mb-2 h-1 w-16 rounded-full bg-gradient-to-r", accent)} />
+          <div className="prose-mesa space-y-4 text-[15.5px] leading-relaxed text-foreground/90">
+            {paragraphs.map((p, i) => (
+              <p key={i} className={i === 0 ? "first-letter:float-left first-letter:mr-2 first-letter:text-5xl first-letter:font-extrabold first-letter:leading-[0.85] first-letter:text-primary" : undefined}>
+                {p}
+              </p>
+            ))}
+          </div>
+        </article>
+
+        {/* Author card */}
+        <div className="surface-card flex items-center gap-4 p-5">
+          <div
+            className={cn(
+              "flex size-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br text-lg font-bold text-primary-foreground",
+              accent,
+            )}
+          >
+            {a.author_name.charAt(0).toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="font-semibold">{a.author_name}</p>
+              {isVerifiedAuthor ? <VerifiedBadge /> : null}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {isVerifiedAuthor ? "Profissional de saúde verificado" : "Equipe editorial Mesa Comum"}
+            </p>
+          </div>
+        </div>
+
+        {/* Sources */}
+        <section aria-labelledby="fontes" className="surface-card p-6">
+          <h2 id="fontes" className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-muted-foreground">
+            <BookOpen className="size-4" aria-hidden="true" />
+            Fontes e referências
           </h2>
-          <ul className="space-y-2 text-sm text-muted-foreground">
-            {sources.data?.map((s) => {
-              const src = s.content_sources as unknown as {
-                name: string;
-                organization: string | null;
-                url: string | null;
-              } | null;
-              return (
-                <li key={s.id}>
-                  {src?.url ? (
-                    <a
-                      href={src.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="underline underline-offset-2"
-                    >
-                      {src?.name}
-                    </a>
-                  ) : (
-                    (src?.name ?? "Fonte")
-                  )}
-                  {src?.organization ? ` — ${src.organization}` : ""}
-                  {s.citation ? `. ${s.citation}` : ""}
-                </li>
-              );
-            })}
-            {sources.data && sources.data.length === 0 ? <li>Fontes em atualização.</li> : null}
-          </ul>
+          {sources.data && sources.data.length > 0 ? (
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {sources.data.map((s) => {
+                const src = s.content_sources as unknown as {
+                  name: string;
+                  organization: string | null;
+                  url: string | null;
+                } | null;
+                return (
+                  <li key={s.id} className="rounded-xl border border-border bg-sand/60 p-3 text-sm">
+                    {src?.url ? (
+                      <a
+                        href={src.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 font-medium text-primary hover:underline"
+                      >
+                        {src?.name}
+                        <ExternalLink className="size-3" aria-hidden="true" />
+                      </a>
+                    ) : (
+                      <span className="font-medium">{src?.name ?? "Fonte"}</span>
+                    )}
+                    {src?.organization ? (
+                      <p className="mt-0.5 text-xs text-muted-foreground">{src.organization}</p>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p className="text-sm text-muted-foreground">Fontes em atualização.</p>
+          )}
         </section>
 
         <SafetyNote />
-        </div>
-      </article>
+
+        {/* More from this theme */}
+        {moreFromTheme.data && moreFromTheme.data.length > 0 ? (
+          <section className="pt-4">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold">Mais sobre {a.category}</h2>
+              <Link
+                to="/aprender"
+                search={{ categoria: a.category }}
+                className="text-sm font-semibold text-primary hover:underline"
+              >
+                Ver tema completo
+              </Link>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {moreFromTheme.data.map((rel, i) => (
+                <ArticleCard
+                  key={rel.id}
+                  article={rel}
+                  accentClass={accent}
+                  style={{ animationDelay: `${i * 60}ms` }}
+                />
+              ))}
+            </div>
+          </section>
+        ) : null}
+      </div>
     </AppShell>
   );
 }

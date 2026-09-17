@@ -1,12 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { BookOpen } from "lucide-react";
+import { BookOpen, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { CardSkeletonList, EmptyState, ErrorState } from "@/components/common/states";
+import { CardSkeletonList, ErrorState } from "@/components/common/states";
 import { SafetyNote } from "@/components/common/SafetyNote";
-import { LEARN_CATEGORIES } from "@/lib/constants";
+import { ArticleCard, type ArticlePreview } from "@/components/learn/ArticleCard";
+import { LEARN_THEMES, learnThemeSlug } from "@/lib/learnThemes";
 import { supabase } from "@/integrations/supabase/client";
-import { cn } from "@/lib/utils";
 
 type LearnSearch = { categoria?: string };
 
@@ -38,107 +39,132 @@ function LearnPage() {
   const { categoria } = Route.useSearch();
 
   const { data, isLoading, isError, refetch } = useQuery({
-    queryKey: ["articles", categoria ?? "todos"],
+    queryKey: ["articles", "all"],
     queryFn: async () => {
-      let q = supabase
+      const { data, error } = await supabase
         .from("articles")
         .select(
-          "id, slug, title, summary, category, content_type, reading_minutes, reading_level, author_name, badge, published_at, cover_url",
+          "id, slug, title, summary, category, reading_minutes, author_name, badge, cover_url, published_at",
         )
         .order("published_at", { ascending: false });
-      if (categoria) q = q.eq("category", categoria);
-      const { data, error } = await q;
       if (error) throw error;
-      return data ?? [];
+      return (data ?? []) as (ArticlePreview & { published_at: string })[];
     },
   });
 
+  useEffect(() => {
+    if (!categoria) return undefined;
+    const slug = learnThemeSlug(categoria);
+    const el = document.getElementById(slug);
+    if (!el) return undefined;
+    const t = setTimeout(() => el.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+    return () => clearTimeout(t);
+  }, [categoria, data]);
+
+  const byCategory = new Map<string, ArticlePreview[]>();
+  for (const a of data ?? []) {
+    const list = byCategory.get(a.category) ?? [];
+    list.push(a);
+    byCategory.set(a.category, list);
+  }
+
   return (
     <AppShell>
-      <header className="mb-6 space-y-2">
-        <h1 className="text-2xl font-extrabold tracking-tight md:text-3xl">Aprender</h1>
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          Conteúdos educativos com linguagem acessível, revisão profissional e fontes citadas.
-        </p>
+      <header className="relative mb-8 overflow-hidden rounded-3xl">
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="gradient-warm-hero absolute inset-0 opacity-90" />
+          <div className="absolute -top-10 -right-10 size-56 animate-float rounded-full bg-white/15 blur-3xl" />
+        </div>
+        <div className="space-y-3 p-6 text-primary-foreground md:p-10">
+          <span className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur">
+            <Sparkles className="size-3.5" aria-hidden="true" />
+            Biblioteca de educação alimentar
+          </span>
+          <h1 className="text-2xl font-extrabold tracking-tight md:text-4xl">Aprender</h1>
+          <p className="max-w-2xl text-sm opacity-90 md:text-base">
+            Conteúdos educativos organizados por tema, com linguagem acessível, revisão
+            profissional e fontes citadas.
+          </p>
+        </div>
       </header>
 
-      <nav aria-label="Categorias" className="mb-6 flex flex-wrap gap-2">
-        <Link
-          to="/aprender"
-          search={{}}
-          className={cn(
-            "rounded-full border border-border px-3 py-1.5 text-sm font-medium transition-all",
-            !categoria
-              ? "border-transparent bg-primary text-primary-foreground shadow-glow"
-              : "hover:border-primary/40 hover:text-primary",
-          )}
-        >
-          Todos
-        </Link>
-        {LEARN_CATEGORIES.map((cat) => (
-          <Link
-            key={cat}
-            to="/aprender"
-            search={{ categoria: cat }}
-            className={cn(
-              "rounded-full border border-border px-3 py-1.5 text-sm font-medium transition-all",
-              categoria === cat
-                ? "border-transparent bg-primary text-primary-foreground shadow-glow"
-                : "hover:border-primary/40 hover:text-primary",
-            )}
-          >
-            {cat}
-          </Link>
-        ))}
+      <nav aria-label="Ir para tema" className="mb-8 flex flex-wrap gap-2">
+        {LEARN_THEMES.map((theme) => {
+          const Icon = theme.icon;
+          const count = byCategory.get(theme.category)?.length ?? 0;
+          if (count === 0) return null;
+          return (
+            <a
+              key={theme.slug}
+              href={`#${theme.slug}`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm font-medium transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary hover:shadow-soft"
+            >
+              <Icon className="size-3.5" aria-hidden="true" />
+              {theme.title}
+            </a>
+          );
+        })}
       </nav>
 
       {isLoading ? <CardSkeletonList count={4} /> : null}
       {isError ? <ErrorState onRetry={() => void refetch()} /> : null}
-      {data && data.length === 0 ? (
-        <EmptyState
-          title="Nenhum conteúdo nesta categoria"
-          description="Escolha outra categoria para continuar explorando."
-        />
-      ) : null}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {data?.map((a, i) => (
-          <Link
-            key={a.id}
-            to="/aprender/$slug"
-            params={{ slug: a.slug }}
-            style={{ animationDelay: `${Math.min(i * 60, 360)}ms` }}
-            className="surface-card group flex flex-col overflow-hidden card-pop animate-in fade-in slide-in-from-bottom-3 fill-mode-backwards duration-500"
-          >
-            {a.cover_url ? (
-              <div className="h-36 w-full overflow-hidden bg-muted">
-                <img
-                  src={a.cover_url}
-                  alt=""
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+      <div className="space-y-14">
+        {LEARN_THEMES.map((theme) => {
+          const articles = byCategory.get(theme.category) ?? [];
+          if (articles.length === 0) return null;
+          const Icon = theme.icon;
+
+          return (
+            <section key={theme.slug} id={theme.slug} className="scroll-mt-24">
+              <div className="surface-card mb-5 flex flex-col overflow-hidden md:flex-row">
+                <div className="relative h-36 w-full shrink-0 overflow-hidden md:h-auto md:w-64">
+                  <img src={theme.cover} alt="" className="h-full w-full object-cover" />
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-t ${theme.accent} opacity-60 mix-blend-multiply`}
+                  />
+                </div>
+                <div className="flex flex-1 items-center gap-4 p-6">
+                  <span
+                    className={`inline-flex size-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${theme.accent} text-white shadow-glow`}
+                  >
+                    <Icon className="size-6" aria-hidden="true" />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-xl font-bold">{theme.title}</h2>
+                      <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${theme.badgeClass}`}>
+                        {articles.length} {articles.length === 1 ? "artigo" : "artigos"}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">{theme.description}</p>
+                  </div>
+                </div>
               </div>
-            ) : null}
-            <div className="p-5">
-              <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-accent-foreground">
-                <span className="inline-flex items-center gap-1 rounded-full bg-accent/60 px-2 py-0.5">
-                  <BookOpen className="size-3.5" aria-hidden="true" />
-                  {a.category}
-                </span>
-                <span className="text-muted-foreground">{a.reading_minutes} min</span>
+
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {articles.map((a, i) => (
+                  <ArticleCard
+                    key={a.id}
+                    article={a}
+                    accentClass={theme.accent}
+                    style={{ animationDelay: `${Math.min(i * 60, 300)}ms` }}
+                  />
+                ))}
               </div>
-              <h2 className="font-semibold leading-snug transition-colors group-hover:text-primary">
-                {a.title}
-              </h2>
-              <p className="mt-2 text-sm text-muted-foreground">{a.summary}</p>
-              <p className="mt-3 text-xs text-muted-foreground">Por {a.author_name}</p>
-            </div>
-          </Link>
-        ))}
+            </section>
+          );
+        })}
       </div>
 
-      <div className="mt-8">
+      {data && data.length === 0 ? (
+        <div className="surface-card flex flex-col items-center gap-2 p-10 text-center">
+          <BookOpen className="size-8 text-muted-foreground" aria-hidden="true" />
+          <p className="font-medium">Nenhum conteúdo publicado ainda.</p>
+        </div>
+      ) : null}
+
+      <div className="mt-10">
         <SafetyNote />
       </div>
     </AppShell>
